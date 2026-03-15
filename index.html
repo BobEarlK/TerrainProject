@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pandemic Erratic</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f7f3eb;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: Georgia, serif;
+    }
+
+    #terrain {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #topo-bg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cairn {
+      position: absolute;
+      width: 48px;
+      height: 64px;
+      cursor: pointer;
+      transform: translate(-50%, -100%);
+      transition: transform 0.2s ease, filter 0.2s ease;
+      filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.25));
+    }
+
+    .cairn:hover {
+      transform: translate(-50%, -100%) scale(1.15);
+      filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.35));
+    }
+
+    .cairn.dragging {
+      opacity: 0.85;
+      cursor: grabbing;
+      transition: none;
+      pointer-events: none;
+      filter: none;
+    }
+
+    /* Your cairns — warmer, amber-tinted */
+    .cairn-mine {
+      filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.25)) sepia(0.5) saturate(2) hue-rotate(-20deg);
+    }
+
+    .cairn-mine:hover {
+      transform: translate(-50%, -100%) scale(1.15);
+      filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.35)) sepia(0.5) saturate(2) hue-rotate(-20deg);
+    }
+
+    /* Add button — hidden until logged in */
+    #add-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(90, 74, 50, 0.75);
+      color: #f7f3eb;
+      font-size: 2rem;
+      line-height: 1;
+      border: none;
+      cursor: pointer;
+      box-shadow: 2px 4px 12px rgba(0,0,0,0.2);
+      z-index: 20;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    #add-btn:hover { background: #3a2e1e; }
+
+    /* User status area — top right */
+    #user-status {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      z-index: 20;
+      font-size: 0.8rem;
+      color: #8b7355;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #user-status button {
+      background: transparent;
+      border: 1px solid #8b7355;
+      color: #8b7355;
+      padding: 5px 14px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: Georgia, serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    #user-status button:hover {
+      background: #8b7355;
+      color: #f7f3eb;
+    }
+
+    /* Cairn dialog */
+    #dialog-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 30;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #dialog-overlay.visible { display: flex; }
+
+    #dialog {
+      background: #f7f3eb;
+      border: 1px solid #8b7355;
+      border-radius: 6px;
+      padding: 28px 32px;
+      width: 360px;
+      box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
+    }
+
+    #dialog h3, #login-dialog h3 {
+      font-size: 1.1rem;
+      color: #5a4a32;
+      margin-bottom: 18px;
+      letter-spacing: 0.04em;
+    }
+
+    #dialog label, #login-dialog label {
+      display: block;
+      font-size: 0.8rem;
+      color: #8b7355;
+      margin-bottom: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    #dialog input, #dialog textarea, #login-dialog input {
+      width: 100%;
+      background: #eee8d8;
+      border: 1px solid #c4a882;
+      border-radius: 3px;
+      padding: 8px 10px;
+      font-family: Georgia, serif;
+      font-size: 0.9rem;
+      color: #3a3028;
+      margin-bottom: 16px;
+      resize: none;
+    }
+
+    #dialog textarea { height: 90px; }
+
+    .dialog-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .dialog-btns button {
+      padding: 8px 20px;
+      border-radius: 3px;
+      border: none;
+      cursor: pointer;
+      font-family: Georgia, serif;
+      font-size: 0.9rem;
+    }
+
+    #cancel-btn, #login-cancel-btn {
+      background: transparent;
+      color: #8b7355;
+      border: 1px solid #8b7355;
+    }
+
+    #place-btn, #login-submit-btn {
+      background: #5a4a32;
+      color: #f7f3eb;
+    }
+
+    #place-btn:hover, #login-submit-btn:hover { background: #3a2e1e; }
+
+    /* Login overlay */
+    #login-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 30;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #login-overlay.visible { display: flex; }
+
+    #login-dialog {
+      background: #f7f3eb;
+      border: 1px solid #8b7355;
+      border-radius: 6px;
+      padding: 28px 32px;
+      width: 320px;
+      box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
+    }
+
+    #login-error {
+      font-size: 0.8rem;
+      color: #8b3a3a;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    /* Instruction banner */
+    #instruction {
+      display: none;
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #5a4a32;
+      color: #f7f3eb;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    /* Popup */
+    #popup {
+      display: none;
+      position: absolute;
+      background: #f7f3eb;
+      border: 1px solid #8b7355;
+      border-radius: 4px;
+      padding: 20px 24px;
+      max-width: 320px;
+      box-shadow: 4px 6px 20px rgba(0,0,0,0.15);
+      z-index: 10;
+    }
+
+    #popup h3 {
+      font-size: 1rem;
+      color: #5a4a32;
+      margin-bottom: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    #popup p {
+      font-size: 0.9rem;
+      color: #3a3028;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    #popup .close {
+      position: absolute;
+      top: 8px; right: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #8b7355;
+    }
+
+    #popup .close:hover { color: #5a4a32; }
+  </style>
+</head>
+<body>
+
+<div id="terrain">
+  <img id="topo-bg" src="topo-bg3.svg" alt="topographic terrain"/>
+</div>
+
+<button id="add-btn" title="Place a cairn">+</button>
+
+<!-- User status: populated by updateUI() -->
+<div id="user-status"></div>
+
+<!-- Cairn dialog -->
+<div id="dialog-overlay">
+  <div id="dialog">
+    <h3>Leave your mark</h3>
+    <label>Title</label>
+    <input type="text" id="input-title" placeholder="A name for this place"/>
+    <label>What do you want to leave here?</label>
+    <textarea id="input-content" placeholder="A poem, a memory, a thought..."></textarea>
+    <div class="dialog-btns">
+      <button id="cancel-btn">Cancel</button>
+      <button id="place-btn">Place cairn</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div id="login-dialog">
+    <h3>Sign in</h3>
+    <label>Email</label>
+    <input type="email" id="login-email" placeholder="your@email.com"/>
+    <label>Password</label>
+    <input type="password" id="login-password" placeholder="••••••••"/>
+    <div id="login-error"></div>
+    <div class="dialog-btns">
+      <button id="login-cancel-btn">Cancel</button>
+      <button id="login-submit-btn">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- Instruction -->
+<div id="instruction">Drag your cairn to where it belongs, then release</div>
+
+<!-- Popup -->
+<div id="popup">
+  <span class="close" onclick="closePopup()">&#x2715;</span>
+  <h3 id="popup-title"></h3>
+  <p id="popup-text"></p>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://cbmviwlufimknywjejnr.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibXZpd2x1Zmlta255d2plam5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NDg2NTAsImV4cCI6MjA4OTAyNDY1MH0.gR_ypDVU_KTjVgPMV-kCKaAYcwvrWAAEYt-8-UxvBJM';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── State ──────────────────────────────────────────────────────
+  let currentUser = null;
+
+  // ── DOM refs ───────────────────────────────────────────────────
+  const terrain = document.getElementById('terrain');
+  const popup = document.getElementById('popup');
+  const popupTitle = document.getElementById('popup-title');
+  const popupText = document.getElementById('popup-text');
+  const dialogOverlay = document.getElementById('dialog-overlay');
+  const loginOverlay = document.getElementById('login-overlay');
+  const instruction = document.getElementById('instruction');
+  const addBtn = document.getElementById('add-btn');
+  const userStatus = document.getElementById('user-status');
+
+  // ── Auth UI ────────────────────────────────────────────────────
+  function updateUI(user) {
+    currentUser = user;
+
+    if (user) {
+      addBtn.style.display = 'flex';
+      userStatus.innerHTML = `
+        <span>${user.email}</span>
+        <button id="signout-btn">Sign out</button>
+      `;
+      document.getElementById('signout-btn').addEventListener('click', () => {
+        client.auth.signOut();
+      });
+    } else {
+      addBtn.style.display = 'none';
+      userStatus.innerHTML = `<button id="signin-btn">Sign in</button>`;
+      document.getElementById('signin-btn').addEventListener('click', () => {
+        loginOverlay.classList.add('visible');
+      });
+    }
+  }
+
+  document.getElementById('login-cancel-btn').addEventListener('click', () => {
+    loginOverlay.classList.remove('visible');
+    clearLoginForm();
+  });
+
+  document.getElementById('login-submit-btn').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errorEl = document.getElementById('login-error');
+    errorEl.style.display = 'none';
+
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) {
+      errorEl.textContent = 'Invalid email or password.';
+      errorEl.style.display = 'block';
+    } else {
+      loginOverlay.classList.remove('visible');
+      clearLoginForm();
+    }
+  });
+
+  function clearLoginForm() {
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-error').style.display = 'none';
+  }
+
+  // ── Auth state wiring ──────────────────────────────────────────
+  // onAuthStateChange fires on page load (INITIAL_SESSION), login, and logout.
+  // Each time, we update the UI and reload markers so ownership styling is fresh.
+  client.auth.onAuthStateChange((_event, session) => {
+    updateUI(session?.user ?? null);
+    document.querySelectorAll('.cairn').forEach(el => el.remove());
+    loadMarkers();
+  });
+
+  // ── Load existing markers ──────────────────────────────────────
+  async function loadMarkers() {
+    const { data, error } = await client.from('markers').select('*');
+    if (error) { console.error('Error loading markers:', error); return; }
+    data.forEach(marker => {
+      const isOwner = !!(currentUser && marker.user_id === currentUser.id);
+      addCairnToTerrain(marker.x, marker.y, marker.title, marker.content, false, isOwner);
+    });
+  }
+
+  function addCairnToTerrain(x, y, title, content, draggable, isOwner) {
+    const img = document.createElement('img');
+    img.src = 'cairn.svg';
+    img.alt = 'cairn marker';
+    img.className = 'cairn';
+    if (isOwner) img.classList.add('cairn-mine');
+    img.style.left = (x * 100) + '%';
+    img.style.top = (y * 100) + '%';
+
+    if (draggable) {
+      makeDraggable(img, title, content);
+    } else {
+      img.addEventListener('click', (e) => showPopup(e, title, content));
+    }
+
+    terrain.appendChild(img);
+    return img;
+  }
+
+  // ── Drag to place ──────────────────────────────────────────────
+  function makeDraggable(img, title, content) {
+    img.classList.add('dragging');
+    instruction.style.display = 'block';
+
+    function onMove(e) {
+      const rect = terrain.getBoundingClientRect();
+      img.style.left = ((e.clientX - rect.left) / rect.width * 100) + '%';
+      img.style.top = ((e.clientY - rect.top) / rect.height * 100) + '%';
+    }
+
+    async function onUp(e) {
+      document.removeEventListener('mousemove', onMove);
+      img.classList.remove('dragging');
+      img.classList.add('cairn-mine');
+      instruction.style.display = 'none';
+
+      const rect = terrain.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+
+      img.style.left = (x * 100) + '%';
+      img.style.top = (y * 100) + '%';
+
+      const { error } = await client.from('markers').insert({
+        x, y, title, content,
+        user_id: currentUser.id
+      });
+      if (error) { console.error('Error saving marker:', error); return; }
+
+      img.addEventListener('click', (ev) => showPopup(ev, title, content));
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp, { once: true });
+  }
+
+  // ── Cairn dialog ───────────────────────────────────────────────
+  addBtn.addEventListener('click', () => {
+    dialogOverlay.classList.add('visible');
+  });
+
+  document.getElementById('cancel-btn').addEventListener('click', () => {
+    dialogOverlay.classList.remove('visible');
+    clearDialog();
+  });
+
+  document.getElementById('place-btn').addEventListener('click', () => {
+    const title = document.getElementById('input-title').value.trim();
+    const content = document.getElementById('input-content').value.trim();
+    if (!title || !content) return;
+
+    dialogOverlay.classList.remove('visible');
+    clearDialog();
+
+    addCairnToTerrain(0.5, 0.5, title, content, true, true);
+  });
+
+  function clearDialog() {
+    document.getElementById('input-title').value = '';
+    document.getElementById('input-content').value = '';
+  }
+
+  // ── Popup ──────────────────────────────────────────────────────
+  function showPopup(e, title, content) {
+    popupTitle.textContent = title;
+    popupText.textContent = content;
+    const pw = 320, ph = 140;
+    popup.style.left = Math.min(e.clientX + 16, window.innerWidth - pw - 16) + 'px';
+    popup.style.top = Math.max(e.clientY - ph - 16, 16) + 'px';
+    popup.style.display = 'block';
+    e.stopPropagation();
+  }
+
+  function closePopup() { popup.style.display = 'none'; }
+  document.addEventListener('click', closePopup);
+</script>
+
+</body>
+</html>

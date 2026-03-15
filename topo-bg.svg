@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <rect width="1200" height="800" fill="#f7f3eb"/>
+  
+  <!-- Outer contours - wide, gentle -->
+  <path d="M50,750 C100,700 200,680 350,670 C500,660 650,655 800,660 C950,665 1050,670 1150,700 L1150,750 Z" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.5"/>
+  <path d="M30,730 C90,670 210,640 380,625 C550,610 700,608 860,615 C1000,622 1100,640 1170,670" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.5"/>
+  <path d="M20,700 C80,635 220,595 400,578 C580,561 740,560 900,570 C1040,578 1130,600 1180,630" fill="none" stroke="#8b7355" stroke-width="0.9" opacity="0.6"/>
+
+  <!-- Mid contours - building toward center mass -->
+  <path d="M60,660 C130,590 270,545 450,528 C620,511 780,512 940,524 C1070,534 1140,558 1180,590" fill="none" stroke="#8b7355" stroke-width="0.9" opacity="0.6"/>
+  <path d="M100,620 C175,548 310,498 490,478 C660,458 820,460 970,475 C1080,487 1140,512 1170,545" fill="none" stroke="#8b7355" stroke-width="1" opacity="0.65"/>
+  <path d="M150,578 C228,502 365,450 540,428 C700,407 855,410 995,428 C1090,442 1140,468 1160,500" fill="none" stroke="#8b7355" stroke-width="1" opacity="0.65"/>
+  <path d="M200,535 C285,455 425,400 595,378 C750,357 895,362 1020,382 C1100,396 1140,424 1150,455" fill="none" stroke="#8b7355" stroke-width="1.1" opacity="0.7"/>
+
+  <!-- Inner contours - tightening around summit -->
+  <path d="M260,490 C348,408 488,350 650,328 C800,307 935,314 1045,337 C1110,352 1140,378 1140,410" fill="none" stroke="#8b7355" stroke-width="1.1" opacity="0.7"/>
+  <path d="M330,445 C420,360 558,300 710,278 C852,257 975,266 1065,292 C1115,308 1130,334 1125,365" fill="none" stroke="#8b7355" stroke-width="1.2" opacity="0.75"/>
+  <path d="M400,398 C495,312 630,252 775,232 C905,213 1015,224 1085,252 C1118,266 1120,292 1108,322" fill="none" stroke="#8b7355" stroke-width="1.2" opacity="0.75"/>
+  <path d="M470,352 C568,265 700,205 840,188 C960,172 1055,184 1105,214 C1120,224 1115,250 1095,278" fill="none" stroke="#8b7355" stroke-width="1.3" opacity="0.8"/>
+
+  <!-- Upper contours - steep, closer together -->
+  <path d="M540,308 C638,222 765,163 895,148 C1005,134 1082,148 1115,178 C1122,186 1110,210 1082,236" fill="none" stroke="#8b7355" stroke-width="1.3" opacity="0.8"/>
+  <path d="M600,268 C695,183 815,126 938,114 C1040,103 1105,118 1120,146 C1118,154 1098,176 1068,200" fill="none" stroke="#8b7355" stroke-width="1.4" opacity="0.82"/>
+  <path d="M655,232 C748,150 860,96 975,86 C1068,77 1118,94 1122,118 C1116,128 1090,148 1055,170" fill="none" stroke="#8b7355" stroke-width="1.4" opacity="0.82"/>
+  <path d="M705,200 C795,122 900,72 1008,64 C1090,57 1120,72 1116,94 C1106,106 1075,124 1040,144" fill="none" stroke="#8b7355" stroke-width="1.5" opacity="0.85"/>
+
+  <!-- Summit area - tight rings suggesting crater -->
+  <path d="M748,172 C832,100 928,55 1025,50 C1090,46 1112,60 1102,80 C1088,94 1058,110 1022,128" fill="none" stroke="#8b7355" stroke-width="1.5" opacity="0.85"/>
+  <path d="M785,148 C862,82 948,42 1034,40 C1082,38 1096,52 1082,68 C1064,82 1035,96 1000,112" fill="none" stroke="#6b5a3e" stroke-width="1.6" opacity="0.9"/>
+  <path d="M818,128 C888,68 965,34 1040,34 C1072,34 1080,46 1062,60 C1042,74 1012,86 978,100" fill="none" stroke="#6b5a3e" stroke-width="1.6" opacity="0.9"/>
+  <ellipse cx="960" cy="72" rx="80" ry="45" fill="none" stroke="#6b5a3e" stroke-width="1.7" opacity="0.92" transform="rotate(-15, 960, 72)"/>
+  <ellipse cx="955" cy="68" rx="55" ry="30" fill="none" stroke="#6b5a3e" stroke-width="1.7" opacity="0.92" transform="rotate(-15, 955, 68)"/>
+  <ellipse cx="950" cy="65" rx="32" ry="18" fill="none" stroke="#5a4a32" stroke-width="1.8" opacity="0.95" transform="rotate(-15, 950, 65)"/>
+
+  <!-- Some index contours (slightly bolder) -->
+  <path d="M150,578 C228,502 365,450 540,428 C700,407 855,410 995,428 C1090,442 1140,468 1160,500" fill="none" stroke="#8b7355" stroke-width="1.8" opacity="0.5"/>
+  <path d="M400,398 C495,312 630,252 775,232 C905,213 1015,224 1085,252 C1118,266 1120,292 1108,322" fill="none" stroke="#8b7355" stroke-width="1.8" opacity="0.5"/>
+  <path d="M655,232 C748,150 860,96 975,86 C1068,77 1118,94 1122,118 C1116,128 1090,148 1055,170" fill="none" stroke="#8b7355" stroke-width="1.8" opacity="0.5"/>
+
+  <!-- Subtle elevation labels -->
+  <text x="162" y="572" font-family="Georgia, serif" font-size="9" fill="#8b7355" opacity="0.6" transform="rotate(-28, 162, 572)">4000</text>
+  <text x="412" y="392" font-family="Georgia, serif" font-size="9" fill="#8b7355" opacity="0.6" transform="rotate(-32, 412, 392)">6000</text>
+  <text x="665" y="226" font-family="Georgia, serif" font-size="9" fill="#8b7355" opacity="0.6" transform="rotate(-35, 665, 226)">8000</text>
+</svg>

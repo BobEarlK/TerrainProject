@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <!-- Soft blur for watercolor washes -->
+    <filter id="blur-heavy" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="38"/>
+    </filter>
+    <filter id="blur-med" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+    <filter id="blur-light" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1200" height="800" fill="#f2ede3"/>
+
+  <!-- ── WATERCOLOR WASHES (under contours) ────────────────────── -->
+
+  <!-- Valley floor wash - muted teal/blue pools -->
+  <ellipse cx="580" cy="420" rx="420" ry="260" fill="#a8c4c8" opacity="0.22" filter="url(#blur-heavy)"/>
+  <ellipse cx="480" cy="500" rx="280" ry="180" fill="#8fb8c0" opacity="0.18" filter="url(#blur-heavy)"/>
+  <ellipse cx="700" cy="460" rx="240" ry="160" fill="#9bbfc5" opacity="0.16" filter="url(#blur-heavy)"/>
+
+  <!-- Saddle between peaks - deeper blue-grey -->
+  <ellipse cx="580" cy="340" rx="180" ry="100" fill="#7fa8b2" opacity="0.2" filter="url(#blur-med)"/>
+  <ellipse cx="620" cy="480" rx="200" ry="120" fill="#8aafba" opacity="0.18" filter="url(#blur-med)"/>
+
+  <!-- Lower terrain edges - green-grey wash -->
+  <ellipse cx="120" cy="680" rx="300" ry="160" fill="#a4b8a0" opacity="0.18" filter="url(#blur-heavy)"/>
+  <ellipse cx="1080" cy="700" rx="260" ry="150" fill="#9eb5aa" opacity="0.16" filter="url(#blur-heavy)"/>
+  <ellipse cx="600" cy="740" rx="350" ry="120" fill="#aab8a8" opacity="0.14" filter="url(#blur-heavy)"/>
+
+  <!-- Peak 1 area - warm grey-brown, higher ground -->
+  <ellipse cx="280" cy="210" rx="200" ry="150" fill="#c8bfb0" opacity="0.2" filter="url(#blur-med)"/>
+  <ellipse cx="300" cy="200" rx="110" ry="80" fill="#d4c8b8" opacity="0.18" filter="url(#blur-med)"/>
+
+  <!-- Peak 2 area -->
+  <ellipse cx="880" cy="260" rx="220" ry="160" fill="#c4bcae" opacity="0.2" filter="url(#blur-med)"/>
+  <ellipse cx="900" cy="250" rx="110" ry="78" fill="#d2c6b4" opacity="0.18" filter="url(#blur-med)"/>
+
+  <!-- Peak 3 area -->
+  <ellipse cx="570" cy="570" rx="160" ry="110" fill="#c0b8aa" opacity="0.2" filter="url(#blur-med)"/>
+
+  <!-- Fine accent washes - small pools of deeper colour suggesting gullies -->
+  <ellipse cx="390" cy="360" rx="80" ry="50" fill="#7899a8" opacity="0.14" filter="url(#blur-med)"/>
+  <ellipse cx="760" cy="390" rx="70" ry="45" fill="#7a9ca8" opacity="0.14" filter="url(#blur-med)"/>
+  <ellipse cx="500" cy="640" rx="90" ry="55" fill="#88a8a0" opacity="0.14" filter="url(#blur-med)"/>
+  <ellipse cx="200" cy="440" rx="70" ry="44" fill="#80a0a8" opacity="0.12" filter="url(#blur-med)"/>
+  <ellipse cx="980" cy="460" rx="80" ry="50" fill="#80a0a4" opacity="0.12" filter="url(#blur-med)"/>
+
+  <!-- Speckle texture - tiny dots suggesting paper grain -->
+  <circle cx="180" cy="320" r="2" fill="#8b9898" opacity="0.12"/>
+  <circle cx="340" cy="480" r="1.5" fill="#7a8f90" opacity="0.1"/>
+  <circle cx="650" cy="280" r="2" fill="#8a9898" opacity="0.12"/>
+  <circle cx="820" cy="540" r="1.5" fill="#7a8f90" opacity="0.1"/>
+  <circle cx="440" cy="700" r="2" fill="#8b9898" opacity="0.1"/>
+  <circle cx="1020" cy="300" r="2" fill="#8a9898" opacity="0.1"/>
+  <circle cx="760" cy="680" r="1.5" fill="#7a9090" opacity="0.1"/>
+  <circle cx="90" cy="540" r="2" fill="#8a9898" opacity="0.1"/>
+
+  <!-- ── CONTOUR LINES (same as before, on top) ─────────────────── -->
+
+  <!-- LEVEL 1 - lowest, encircles entire terrain -->
+  <path d="M60,780 C60,750 80,710 130,670 C180,630 260,600 360,590 C420,585 470,590 510,600 C540,607 560,612 580,610 C600,608 630,600 680,592 C740,582 820,575 920,572 C1020,569 1100,575 1150,595 C1180,608 1195,628 1195,660 C1195,700 1180,740 1150,770 C1100,800 1000,800 850,800 C650,800 350,800 150,800 C100,800 60,795 60,780 Z" fill="none" stroke="#7a6a52" stroke-width="0.8" opacity="0.4"/>
+  <path d="M90,740 C95,710 120,672 175,638 C230,604 310,576 410,564 C460,558 500,560 535,568 C558,574 575,580 595,578 C618,575 650,565 705,554 C768,541 848,533 945,530 C1030,527 1105,534 1145,556 C1168,568 1178,590 1175,622 C1170,660 1148,700 1110,735 C1060,775 960,790 800,792 C640,794 420,792 240,785 C150,780 90,765 90,740 Z" fill="none" stroke="#7a6a52" stroke-width="0.8" opacity="0.45"/>
+  <path d="M120,700 C130,668 162,630 222,596 C282,562 365,534 462,520 C505,513 540,514 568,520 C588,524 604,530 622,528 C645,525 678,514 732,502 C796,488 876,480 966,478 C1044,476 1108,486 1138,510 C1155,522 1158,546 1150,578 C1136,618 1105,658 1060,692 C1005,730 910,752 760,758 C610,764 430,758 280,745 C180,736 120,722 120,700 Z" fill="none" stroke="#7a6a52" stroke-width="0.9" opacity="0.5"/>
+  <path d="M158,655 C172,620 210,578 275,542 C340,506 422,476 518,460 C558,453 590,452 616,458 C634,462 648,468 666,466 C692,462 728,450 782,436 C845,420 920,412 998,412 C1064,412 1118,424 1138,450 C1150,464 1145,490 1128,522 C1104,562 1060,600 1004,630 C940,662 848,680 720,686 C596,692 454,684 336,668 C235,654 158,672 158,655 Z" fill="none" stroke="#7a6a52" stroke-width="0.9" opacity="0.55"/>
+  <path d="M205,608 C224,570 268,524 338,486 C408,448 490,416 582,400 C614,394 638,394 658,400 C672,404 682,410 700,408 C728,404 768,390 824,374 C882,357 950,348 1016,350 C1070,352 1110,366 1124,392 C1132,408 1122,434 1098,464 C1064,502 1012,536 950,560 C878,586 790,598 680,604 C574,610 458,604 362,590 C270,576 206,622 205,608 Z" fill="none" stroke="#7a6a52" stroke-width="1.0" opacity="0.6"/>
+  <path d="M262,558 C286,516 336,466 410,428 C478,392 556,364 634,350 C658,345 674,346 688,352 C700,357 710,363 726,360 C754,354 796,338 852,322 C906,306 964,298 1020,302 C1062,306 1092,322 1100,348 C1106,366 1090,394 1060,422 C1020,458 966,488 898,510 C822,532 736,542 636,548 C540,554 440,546 360,530 C292,516 262,572 262,558 Z" fill="none" stroke="#7a6a52" stroke-width="1.0" opacity="0.62"/>
+  <path d="M318,502 C346,458 400,408 474,372 C540,338 610,316 672,308 C690,305 700,308 710,316 C720,322 730,326 746,322 C776,314 820,296 874,280 C922,264 970,258 1010,264 C1040,270 1058,286 1058,312 C1056,338 1036,366 1000,392 C954,422 896,444 826,458 C756,472 680,476 608,478 C546,480 490,476 444,466 C388,454 318,516 318,502 Z" fill="none" stroke="#7a6a52" stroke-width="1.1" opacity="0.65"/>
+  <path d="M436,602 C450,572 480,544 520,526 C554,510 592,502 622,504 C648,506 664,516 668,534 C672,552 658,572 632,588 C602,604 562,612 524,612 C488,612 458,606 436,602 Z" fill="none" stroke="#7a6a52" stroke-width="1.1" opacity="0.65"/>
+  <path d="M190,330 C206,290 244,252 296,224 C342,198 394,184 436,184 C468,184 490,192 500,208 C508,220 506,238 494,256 C474,280 442,300 400,314 C358,328 310,334 268,330 C232,326 192,346 190,330 Z" fill="none" stroke="#7a6a52" stroke-width="1.2" opacity="0.7"/>
+  <path d="M788,348 C804,308 842,270 894,244 C940,220 990,208 1030,212 C1058,216 1074,230 1072,252 C1068,272 1046,294 1010,312 C968,330 916,340 864,340 C824,340 792,364 788,348 Z" fill="none" stroke="#7a6a52" stroke-width="1.2" opacity="0.7"/>
+  <path d="M472,590 C482,564 506,540 538,524 C566,510 596,504 620,508 C638,512 648,524 644,542 C640,560 622,576 596,586 C568,596 538,600 512,596 C490,592 472,604 472,590 Z" fill="none" stroke="#7a6a52" stroke-width="1.2" opacity="0.7"/>
+  <path d="M218,282 C230,254 258,228 294,212 C326,198 360,192 386,196 C406,200 416,212 410,230 C402,248 378,264 346,274 C316,284 282,286 256,280 C236,274 218,294 218,282 Z" fill="none" stroke="#5a4a36" stroke-width="1.4" opacity="0.78"/>
+  <path d="M820,306 C832,278 862,252 900,236 C934,222 968,218 992,224 C1008,230 1014,244 1006,262 C996,280 970,296 936,306 C902,316 866,318 840,312 C824,306 820,318 820,306 Z" fill="none" stroke="#5a4a36" stroke-width="1.4" opacity="0.78"/>
+  <path d="M500,572 C508,550 528,532 554,522 C576,514 600,512 616,520 C628,526 630,540 620,556 C608,572 586,582 562,584 C540,586 518,582 502,574 Z" fill="none" stroke="#5a4a36" stroke-width="1.4" opacity="0.78"/>
+  <ellipse cx="306" cy="228" rx="48" ry="34" fill="none" stroke="#5a4a36" stroke-width="1.6" opacity="0.86" transform="rotate(-10,306,228)"/>
+  <ellipse cx="306" cy="228" rx="28" ry="19" fill="none" stroke="#5a4a36" stroke-width="1.7" opacity="0.92" transform="rotate(-10,306,228)"/>
+  <ellipse cx="306" cy="228" rx="13" ry="9" fill="none" stroke="#4a3c2a" stroke-width="1.8" opacity="0.96" transform="rotate(-10,306,228)"/>
+  <circle cx="306" cy="228" r="4" fill="#c8b89a" stroke="#4a3c2a" stroke-width="1.5"/>
+  <ellipse cx="928" cy="254" rx="52" ry="36" fill="none" stroke="#5a4a36" stroke-width="1.6" opacity="0.86" transform="rotate(8,928,254)"/>
+  <ellipse cx="928" cy="254" rx="30" ry="20" fill="none" stroke="#5a4a36" stroke-width="1.7" opacity="0.92" transform="rotate(8,928,254)"/>
+  <ellipse cx="928" cy="254" rx="14" ry="10" fill="none" stroke="#4a3c2a" stroke-width="1.8" opacity="0.96" transform="rotate(8,928,254)"/>
+  <circle cx="928" cy="254" r="4" fill="#c8b89a" stroke="#4a3c2a" stroke-width="1.5"/>
+  <ellipse cx="562" cy="548" rx="38" ry="26" fill="none" stroke="#5a4a36" stroke-width="1.6" opacity="0.86" transform="rotate(-5,562,548)"/>
+  <ellipse cx="562" cy="548" rx="20" ry="14" fill="none" stroke="#5a4a36" stroke-width="1.7" opacity="0.92" transform="rotate(-5,562,548)"/>
+  <circle cx="562" cy="548" r="4" fill="#c8b89a" stroke="#4a3c2a" stroke-width="1.5"/>
+
+  <!-- Elevation labels -->
+  <text x="550" y="396" font-family="Georgia, serif" font-size="8" fill="#7a6a52" opacity="0.5">3000</text>
+  <text x="364" y="186" font-family="Georgia, serif" font-size="8" fill="#7a6a52" opacity="0.55">6000</text>
+  <text x="1000" y="216" font-family="Georgia, serif" font-size="8" fill="#7a6a52" opacity="0.55">6000</text>
+  <text x="626" y="508" font-family="Georgia, serif" font-size="8" fill="#7a6a52" opacity="0.5">4000</text>
+</svg>

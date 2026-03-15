@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" width="120" height="160">
+  <!-- Woodcut style cairn - bold black lines, rough organic edges -->
+  
+  <!-- Ground shadow -->
+  <ellipse cx="60" cy="148" rx="38" ry="6" fill="#1a1a1a"/>
+  
+  <!-- Bottom stone - large, wide, irregular -->
+  <path d="M18,142 C14,138 12,132 16,128 C20,124 28,122 38,121 C50,120 70,120 82,121 C94,122 104,125 106,129 C108,133 106,139 102,142 C96,145 80,147 60,147 C40,147 22,146 18,142 Z" fill="#1a1a1a"/>
+  <path d="M22,141 C19,137 18,132 22,129 C27,126 36,124 50,124 C64,124 76,124 86,126 C96,128 102,131 101,135 C100,139 92,142 78,144 C64,146 44,145 30,143 C26,142 23,142 22,141 Z" fill="#f5f0e8"/>
+  <!-- woodcut grain lines on bottom stone -->
+  <path d="M30,130 C45,128 65,128 80,130" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M25,135 C42,133 68,133 85,135" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <path d="M28,140 C44,138 66,138 82,140" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- Second stone from bottom - offset left -->
+  <path d="M22,122 C18,118 17,112 21,108 C25,104 35,102 48,102 C62,102 74,103 80,107 C86,111 85,117 81,121 C76,125 62,127 46,126 C32,125 24,124 22,122 Z" fill="#1a1a1a"/>
+  <path d="M26,121 C23,117 23,112 27,110 C32,107 40,106 52,106 C64,106 73,107 77,111 C80,114 79,118 75,121 C70,124 58,125 46,124 C34,123 27,122 26,121 Z" fill="#f5f0e8"/>
+  <path d="M32,111 C44,109 62,109 72,112" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M29,117 C43,115 63,115 74,117" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- Third stone - offset right, medium -->
+  <path d="M34,103 C30,99 30,93 34,89 C39,85 50,83 62,83 C74,83 84,85 87,89 C90,93 88,99 84,103 C79,107 68,108 55,108 C42,108 36,105 34,103 Z" fill="#1a1a1a"/>
+  <path d="M38,102 C35,98 35,93 39,91 C44,88 53,87 63,87 C73,87 81,89 83,93 C85,96 83,101 79,103 C74,106 65,107 55,107 C44,107 39,104 38,102 Z" fill="#f5f0e8"/>
+  <path d="M43,92 C54,90 68,90 76,93" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M40,98 C53,96 68,96 78,98" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- Fourth stone - smaller, offset left -->
+  <path d="M36,84 C33,80 33,74 37,71 C42,68 52,66 62,67 C72,68 80,71 81,75 C82,79 79,84 74,87 C68,90 56,90 46,89 C39,88 37,85 36,84 Z" fill="#1a1a1a"/>
+  <path d="M40,83 C37,79 38,74 42,72 C47,70 55,69 63,70 C71,71 77,74 77,78 C77,81 74,84 69,86 C63,88 53,88 46,87 C41,86 40,84 40,83 Z" fill="#f5f0e8"/>
+  <path d="M45,74 C54,72 66,73 72,75" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M43,79 C53,77 65,77 73,80" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- Fifth stone - getting narrower -->
+  <path d="M42,67 C39,63 39,57 44,54 C49,51 57,50 65,51 C73,52 79,55 79,59 C79,63 75,67 69,70 C63,72 53,72 47,70 C44,69 42,68 42,67 Z" fill="#1a1a1a"/>
+  <path d="M46,66 C43,62 44,57 48,55 C52,53 59,52 65,53 C71,54 75,57 75,60 C75,63 72,66 67,68 C62,70 54,70 49,69 C47,68 46,67 46,66 Z" fill="#f5f0e8"/>
+  <path d="M50,57 C57,55 66,56 71,58" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Sixth stone - small -->
+  <path d="M47,51 C44,47 45,42 49,40 C54,37 61,37 67,39 C72,41 74,45 72,49 C70,52 64,54 57,54 C51,54 47,52 47,51 Z" fill="#1a1a1a"/>
+  <path d="M50,50 C48,47 49,43 52,41 C56,39 62,39 66,41 C69,43 70,46 68,49 C66,51 62,52 57,52 C52,52 50,51 50,50 Z" fill="#f5f0e8"/>
+  <path d="M53,43 C58,42 63,43 66,45" stroke="#1a1a1a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Top stone - small capstone -->
+  <path d="M50,40 C48,37 48,32 52,30 C55,28 60,27 64,29 C67,31 68,35 66,38 C64,41 60,42 56,42 C53,42 50,41 50,40 Z" fill="#1a1a1a"/>
+  <path d="M53,39 C51,36 52,32 55,31 C57,29 61,29 63,31 C65,33 65,36 63,38 C61,40 58,41 56,40 C54,40 53,39 53,39 Z" fill="#f5f0e8"/>
+
+</svg>

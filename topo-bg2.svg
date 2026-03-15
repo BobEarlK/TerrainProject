@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <rect width="1200" height="800" fill="#f7f3eb"/>
+
+  <!-- PEAK 1: upper left area, center ~280, 200 -->
+  <ellipse cx="280" cy="200" rx="260" ry="190" fill="none" stroke="#8b7355" stroke-width="0.7" opacity="0.45"/>
+  <ellipse cx="280" cy="200" rx="220" ry="158" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.5"/>
+  <ellipse cx="280" cy="200" rx="182" ry="128" fill="none" stroke="#8b7355" stroke-width="0.9" opacity="0.55"/>
+  <ellipse cx="280" cy="200" rx="148" ry="102" fill="none" stroke="#8b7355" stroke-width="1.0" opacity="0.6"/>
+  <ellipse cx="280" cy="200" rx="116" ry="80" fill="none" stroke="#8b7355" stroke-width="1.1" opacity="0.65"/>
+  <ellipse cx="280" cy="200" rx="88" ry="60" fill="none" stroke="#8b7355" stroke-width="1.3" opacity="0.72"/>
+  <ellipse cx="280" cy="200" rx="62" ry="42" fill="none" stroke="#8b7355" stroke-width="1.5" opacity="0.8"/>
+  <ellipse cx="280" cy="200" rx="40" ry="27" fill="none" stroke="#6b5a3e" stroke-width="1.7" opacity="0.88"/>
+  <ellipse cx="280" cy="200" rx="22" ry="15" fill="none" stroke="#6b5a3e" stroke-width="1.8" opacity="0.95"/>
+  <ellipse cx="280" cy="200" rx="10" ry="7" fill="#c8b89a" stroke="#5a4a32" stroke-width="1.8" opacity="0.9"/>
+  <!-- index contour labels peak 1 -->
+  <text x="408" y="197" font-family="Georgia, serif" font-size="9" fill="#8b7355" opacity="0.55">5000</text>
+  <text x="356" y="197" font-family="Georgia, serif" font-size="9" fill="#8b7355" opacity="0.55">7000</text>
+
+  <!-- PEAK 2: right side, center ~850, 280 -->
+  <ellipse cx="850" cy="280" rx="300" ry="220" fill="none" stroke="#8b7355" stroke-width="0.7" opacity="0.45"/>
+  <ellipse cx="850" cy="280" rx="258" ry="188" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.5"/>
+  <ellipse cx="850" cy="280" rx="218" ry="158" fill="none" stroke="#8b7355" stroke-width="0.9" opacity="0.55"/>
+  <ellipse cx="850" cy="280" rx="180" ry="130" fill="none" stroke="#8b7355" stroke-width="1.0" opacity="0.6"/>
+  <ellipse cx="850" cy="280" rx="145" ry="104" fill="none" stroke="#8b7355" stroke-width="1.1" opacity="0.65"/>
+  <ellipse cx="850" cy="280" rx="112" ry="80" fill="none" stroke="#8b7355" stroke-width="1.3" opacity="0.72"/>
+  <ellipse cx="850" cy="280" rx="82" ry="58" fill="none" stroke="#8b7355" stroke-width="1.5" opacity="0.8"/>
+  <ellipse cx="850" cy="280" rx="55" ry="38" fill="none" stroke="#6b5a3e" stroke-width="1.7" opacity="0.88"/>
+  <ellipse cx="850" cy="280" rx="32" ry="22" fill="none" stroke="#6b5a3e" stroke-width="1.8" opacity="0.92"/>
+  <ellipse cx="850" cy="280" rx="15" ry="10" fill="none" stroke="#5a4a32" stroke-width="1.9" opacity="0.95"/>
+  <ellipse cx="850" cy="280" rx="6" ry="4" fill="#c8b89a" stroke="#5a4a32" stroke-width="1.8" opacity="0.9"/>
+  <text x="968" y="277" font-family="Georgia, serif" font-size="9" fill="#8b7355" opacity="0.55">5000</text>
+  <text x="910" y="277" font-family="Georgia, serif" font-size="9" fill="#8b7355" opacity="0.55">8000</text>
+
+  <!-- PEAK 3: lower center, smaller, center ~580, 580 -->
+  <ellipse cx="580" cy="580" rx="220" ry="160" fill="none" stroke="#8b7355" stroke-width="0.7" opacity="0.45"/>
+  <ellipse cx="580" cy="580" rx="185" ry="133" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.5"/>
+  <ellipse cx="580" cy="580" rx="152" ry="108" fill="none" stroke="#8b7355" stroke-width="0.9" opacity="0.55"/>
+  <ellipse cx="580" cy="580" rx="120" ry="85" fill="none" stroke="#8b7355" stroke-width="1.0" opacity="0.6"/>
+  <ellipse cx="580" cy="580" rx="90" ry="64" fill="none" stroke="#8b7355" stroke-width="1.1" opacity="0.65"/>
+  <ellipse cx="580" cy="580" rx="64" ry="45" fill="none" stroke="#8b7355" stroke-width="1.3" opacity="0.72"/>
+  <ellipse cx="580" cy="580" rx="42" ry="29" fill="none" stroke="#6b5a3e" stroke-width="1.5" opacity="0.82"/>
+  <ellipse cx="580" cy="580" rx="22" ry="15" fill="none" stroke="#6b5a3e" stroke-width="1.7" opacity="0.9"/>
+  <ellipse cx="580" cy="580" rx="9" ry="6" fill="#c8b89a" stroke="#5a4a32" stroke-width="1.8" opacity="0.9"/>
+  <text x="690" y="578" font-family="Georgia, serif" font-size="9" fill="#8b7355" opacity="0.55">4000</text>
+
+  <!-- VALLEY / SADDLE between peak 1 and 2 - a loose contour bridging them -->
+  <path d="M490,260 C540,280 600,288 660,280" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.4"/>
+  <path d="M480,295 C535,318 605,326 668,318" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.4"/>
+  <path d="M472,332 C530,358 608,366 672,356" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.38"/>
+
+  <!-- VALLEY between peak 2 and 3 -->
+  <path d="M780,440 C800,470 808,510 800,540" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.38"/>
+  <path d="M745,448 C762,480 768,520 758,550" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.38"/>
+
+  <!-- VALLEY between peak 1 and 3 -->
+  <path d="M340,380 C380,420 420,460 450,500" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.38"/>
+  <path d="M308,395 C346,438 384,478 412,518" fill="none" stroke="#8b7355" stroke-width="0.8" opacity="0.38"/>
+
+  <!-- Outer terrain edge - gentle undulating boundary -->
+  <path d="M0,760 C80,740 180,730 300,735 C420,740 500,755 580,755 C680,755 780,740 900,738 C1020,736 1100,742 1200,755 L1200,800 L0,800 Z" fill="#ede8dc" stroke="#8b7355" stroke-width="0.6" opacity="0.3"/>
+  <path d="M0,720 C100,695 220,685 360,690 C480,694 560,705 650,702 C760,698 870,685 980,682 C1080,680 1150,688 1200,700" fill="none" stroke="#8b7355" stroke-width="0.6" opacity="0.3"/>
+
+</svg>
