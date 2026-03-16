@@ -228,11 +228,56 @@
       box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
     }
 
-    #login-error {
+    #login-error, #set-password-error {
       font-size: 0.8rem;
       color: #8b3a3a;
       margin-bottom: 12px;
       display: none;
+    }
+
+    #login-message, #set-password-message {
+      font-size: 0.8rem;
+      color: #3a6b3a;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 0.75rem;
+      color: #8b7355;
+      cursor: pointer;
+      margin-top: -10px;
+      margin-bottom: 16px;
+      text-decoration: underline;
+      letter-spacing: 0.03em;
+    }
+
+    .forgot-link:hover { color: #5a4a32; }
+
+    #reset-view { display: none; }
+
+    /* Set password overlay */
+    #set-password-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 30;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #set-password-overlay.visible { display: flex; }
+
+    #set-password-dialog {
+      background: #f7f3eb;
+      border: 1px solid #8b7355;
+      border-radius: 6px;
+      padding: 28px 32px;
+      width: 320px;
+      box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
     }
 
     /* Instruction banner */
@@ -319,15 +364,48 @@
 <!-- Login overlay -->
 <div id="login-overlay">
   <div id="login-dialog">
-    <h3>Sign in</h3>
-    <label>Email</label>
-    <input type="email" id="login-email" placeholder="your@email.com"/>
-    <label>Password</label>
-    <input type="password" id="login-password" placeholder="••••••••"/>
-    <div id="login-error"></div>
+
+    <!-- Sign in view -->
+    <div id="login-view">
+      <h3>Sign in</h3>
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="your@email.com"/>
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••"/>
+      <span class="forgot-link" id="forgot-link">Forgot password?</span>
+      <div id="login-error"></div>
+      <div class="dialog-btns">
+        <button id="login-cancel-btn">Cancel</button>
+        <button id="login-submit-btn">Sign in</button>
+      </div>
+    </div>
+
+    <!-- Forgot password view -->
+    <div id="reset-view">
+      <h3>Reset password</h3>
+      <label>Email</label>
+      <input type="email" id="reset-email" placeholder="your@email.com"/>
+      <div id="login-message"></div>
+      <div class="dialog-btns">
+        <button id="reset-back-btn">Back</button>
+        <button id="reset-submit-btn">Send reset link</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Set password overlay (invite arrival + password recovery) -->
+<div id="set-password-overlay">
+  <div id="set-password-dialog">
+    <h3 id="set-password-title">Set your password</h3>
+    <label>New password</label>
+    <input type="password" id="new-password" placeholder="••••••••"/>
+    <label>Confirm password</label>
+    <input type="password" id="confirm-password" placeholder="••••••••"/>
+    <div id="set-password-error"></div>
     <div class="dialog-btns">
-      <button id="login-cancel-btn">Cancel</button>
-      <button id="login-submit-btn">Sign in</button>
+      <button id="set-password-submit-btn">Set password</button>
     </div>
   </div>
 </div>
@@ -357,6 +435,7 @@
   const popupText = document.getElementById('popup-text');
   const dialogOverlay = document.getElementById('dialog-overlay');
   const loginOverlay = document.getElementById('login-overlay');
+  const setPasswordOverlay = document.getElementById('set-password-overlay');
   const instruction = document.getElementById('instruction');
   const addBtn = document.getElementById('add-btn');
   const userStatus = document.getElementById('user-status');
@@ -408,12 +487,94 @@
     document.getElementById('login-email').value = '';
     document.getElementById('login-password').value = '';
     document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-message').style.display = 'none';
+    document.getElementById('login-view').style.display = 'block';
+    document.getElementById('reset-view').style.display = 'none';
   }
 
+  // ── Forgot password ────────────────────────────────────────────
+  document.getElementById('forgot-link').addEventListener('click', () => {
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('reset-view').style.display = 'block';
+  });
+
+  document.getElementById('reset-back-btn').addEventListener('click', () => {
+    document.getElementById('reset-view').style.display = 'none';
+    document.getElementById('login-view').style.display = 'block';
+    document.getElementById('login-message').style.display = 'none';
+  });
+
+  document.getElementById('reset-submit-btn').addEventListener('click', async () => {
+    const email = document.getElementById('reset-email').value.trim();
+    const msgEl = document.getElementById('login-message');
+    if (!email) return;
+
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://pandemicerratic.com'
+    });
+
+    if (error) {
+      msgEl.style.color = '#8b3a3a';
+      msgEl.textContent = 'Something went wrong. Try again.';
+    } else {
+      msgEl.style.color = '#3a6b3a';
+      msgEl.textContent = 'Check your email for a reset link.';
+    }
+    msgEl.style.display = 'block';
+  });
+
+  // ── Set password (invite + recovery) ──────────────────────────
+  function showSetPassword(title) {
+    document.getElementById('set-password-title').textContent = title || 'Set your password';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+    document.getElementById('set-password-error').style.display = 'none';
+    setPasswordOverlay.classList.add('visible');
+  }
+
+  document.getElementById('set-password-submit-btn').addEventListener('click', async () => {
+    const newPw = document.getElementById('new-password').value;
+    const confirmPw = document.getElementById('confirm-password').value;
+    const errorEl = document.getElementById('set-password-error');
+    errorEl.style.display = 'none';
+
+    if (newPw.length < 6) {
+      errorEl.textContent = 'Password must be at least 6 characters.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if (newPw !== confirmPw) {
+      errorEl.textContent = 'Passwords do not match.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const { error } = await client.auth.updateUser({ password: newPw });
+    if (error) {
+      errorEl.textContent = 'Could not set password. Try again.';
+      errorEl.style.display = 'block';
+    } else {
+      setPasswordOverlay.classList.remove('visible');
+    }
+  });
+
   // ── Auth state wiring ──────────────────────────────────────────
-  // onAuthStateChange fires on page load (INITIAL_SESSION), login, and logout.
-  // Each time, we update the UI and reload markers so ownership styling is fresh.
-  client.auth.onAuthStateChange((_event, session) => {
+  // PASSWORD_RECOVERY: user clicked a reset link — show set password dialog.
+  // SIGNED_IN after invite: URL hash contains type=invite — same dialog.
+  // All other events: update UI and reload markers as normal.
+  client.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      showSetPassword('Set your new password');
+      return;
+    }
+
+    if (event === 'SIGNED_IN' && window.location.hash.includes('type=invite')) {
+      updateUI(session?.user ?? null);
+      showSetPassword('Welcome — please set your password');
+      return;
+    }
+
     updateUI(session?.user ?? null);
     document.querySelectorAll('.cairn').forEach(el => el.remove());
     loadMarkers();
