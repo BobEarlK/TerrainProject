@@ -653,21 +653,38 @@
 
   // ── Auth state wiring ──────────────────────────────────────────
   // PASSWORD_RECOVERY: user clicked a reset link — show set password dialog.
-  // SIGNED_IN after invite: URL hash contains type=invite — same dialog.
-  // All other events: update UI and reload markers as normal.
-  client.auth.onAuthStateChange((event, session) => {
+  // SIGNED_IN + no profile: new invite user — show set password, then username.
+  // INITIAL_SESSION + no profile: returning user without username yet — just prompt username.
+  // All other events: update UI and reload markers.
+  client.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
+      await updateUI(session?.user ?? null);
       showSetPassword('Set your new password');
       return;
     }
 
-    if (event === 'SIGNED_IN' && window.location.hash.includes('type=invite')) {
-      updateUI(session?.user ?? null);
-      showSetPassword('Welcome — please set your password');
-      return;
+    const user = session?.user ?? null;
+    await updateUI(user);
+
+    if (user) {
+      const { data: profile } = await client
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile?.username) {
+        if (event === 'SIGNED_IN') {
+          // New invite user arriving for the first time — needs password + username
+          showSetPassword('Welcome — please set your password');
+        } else if (event === 'INITIAL_SESSION') {
+          // Returning user who skipped username setup
+          showChooseUsername();
+        }
+        return;
+      }
     }
 
-    updateUI(session?.user ?? null);
     document.querySelectorAll('.cairn').forEach(el => el.remove());
     loadMarkers();
   });
