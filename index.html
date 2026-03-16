@@ -280,6 +280,43 @@
       box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
     }
 
+    /* Choose username overlay */
+    #choose-username-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 30;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #choose-username-overlay.visible { display: flex; }
+
+    #choose-username-dialog {
+      background: #f7f3eb;
+      border: 1px solid #8b7355;
+      border-radius: 6px;
+      padding: 28px 32px;
+      width: 320px;
+      box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
+    }
+
+    #choose-username-error {
+      font-size: 0.8rem;
+      color: #8b3a3a;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    #choose-username-hint {
+      font-size: 0.75rem;
+      color: #8b7355;
+      margin-top: -10px;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
     /* Instruction banner */
     #instruction {
       display: none;
@@ -410,6 +447,20 @@
   </div>
 </div>
 
+<!-- Choose username overlay (new users only) -->
+<div id="choose-username-overlay">
+  <div id="choose-username-dialog">
+    <h3>Choose a username</h3>
+    <label>Username</label>
+    <input type="text" id="username-input" placeholder="e.g. wanderer, stonepiler..."/>
+    <p id="choose-username-hint">Letters, numbers, and underscores only.</p>
+    <div id="choose-username-error"></div>
+    <div class="dialog-btns">
+      <button id="choose-username-submit-btn">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Instruction -->
 <div id="instruction">Drag your cairn to where it belongs, then release</div>
 
@@ -427,6 +478,7 @@
 
   // ── State ──────────────────────────────────────────────────────
   let currentUser = null;
+  let currentUsername = null;
 
   // ── DOM refs ───────────────────────────────────────────────────
   const terrain = document.getElementById('terrain');
@@ -441,19 +493,24 @@
   const userStatus = document.getElementById('user-status');
 
   // ── Auth UI ────────────────────────────────────────────────────
-  function updateUI(user) {
+  async function updateUI(user) {
     currentUser = user;
 
     if (user) {
+      // Fetch username from profiles table
+      const { data } = await client.from('profiles').select('username').eq('id', user.id).single();
+      currentUsername = data?.username ?? null;
+
       addBtn.style.display = 'flex';
       userStatus.innerHTML = `
-        <span>${user.email}</span>
+        <span>${currentUsername ?? user.email}</span>
         <button id="signout-btn">Sign out</button>
       `;
       document.getElementById('signout-btn').addEventListener('click', () => {
         client.auth.signOut();
       });
     } else {
+      currentUsername = null;
       addBtn.style.display = 'none';
       userStatus.innerHTML = `<button id="signin-btn">Sign in</button>`;
       document.getElementById('signin-btn').addEventListener('click', () => {
@@ -461,6 +518,38 @@
       });
     }
   }
+
+  // ── Choose username ────────────────────────────────────────────
+  function showChooseUsername() {
+    document.getElementById('username-input').value = '';
+    document.getElementById('choose-username-error').style.display = 'none';
+    document.getElementById('choose-username-overlay').classList.add('visible');
+  }
+
+  document.getElementById('choose-username-submit-btn').addEventListener('click', async () => {
+    const username = document.getElementById('username-input').value.trim();
+    const errorEl = document.getElementById('choose-username-error');
+    errorEl.style.display = 'none';
+
+    if (!username) return;
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      errorEl.textContent = 'Letters, numbers, and underscores only.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const { error } = await client.from('profiles').upsert({ id: currentUser.id, username });
+    if (error) {
+      errorEl.textContent = error.code === '23505' ? 'That username is taken.' : 'Could not save username. Try again.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    currentUsername = username;
+    document.getElementById('choose-username-overlay').classList.remove('visible');
+    await updateUI(currentUser);
+  });
 
   document.getElementById('login-cancel-btn').addEventListener('click', () => {
     loginOverlay.classList.remove('visible');
@@ -556,6 +645,9 @@
       errorEl.style.display = 'block';
     } else {
       setPasswordOverlay.classList.remove('visible');
+      // Check if this user already has a username — if not, prompt them to choose one
+      const { data } = await client.from('profiles').select('username').eq('id', currentUser.id).single();
+      if (!data?.username) showChooseUsername();
     }
   });
 
