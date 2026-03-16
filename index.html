@@ -73,8 +73,8 @@
       border-radius: 50%;
       background: rgba(90, 74, 50, 0.75);
       color: #f7f3eb;
-      font-size: 2rem;
-      line-height: 1;
+      font-size: 1.4rem;
+      line-height: 44px;
       border: none;
       cursor: pointer;
       box-shadow: 2px 4px 12px rgba(0,0,0,0.2);
@@ -87,36 +87,42 @@
 
     #add-btn:hover { background: #3a2e1e; }
 
-    /* User status area — top right */
+    /* User status area — top right, liquid glass capsule */
     #user-status {
       position: fixed;
       top: 20px;
       right: 24px;
       z-index: 20;
       font-size: 0.8rem;
-      color: #8b7355;
+      color: #5a4a32;
       letter-spacing: 0.05em;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 999px;
+      padding: 6px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     }
 
     #user-status button {
       background: transparent;
-      border: 1px solid #8b7355;
-      color: #8b7355;
-      padding: 5px 14px;
-      border-radius: 3px;
+      border: 1px solid rgba(90, 74, 50, 0.4);
+      color: #5a4a32;
+      padding: 4px 12px;
+      border-radius: 999px;
       cursor: pointer;
       font-family: Georgia, serif;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       letter-spacing: 0.05em;
       transition: background 0.2s, color 0.2s;
     }
 
     #user-status button:hover {
-      background: #8b7355;
-      color: #f7f3eb;
+      background: rgba(90, 74, 50, 0.15);
     }
 
     /* Cairn dialog */
