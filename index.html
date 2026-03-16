@@ -456,7 +456,6 @@
 <div id="choose-username-overlay">
   <div id="choose-username-dialog">
     <h3>Choose a username</h3>
-    <label>Username</label>
     <input type="text" id="username-input" placeholder="e.g. wanderer, stonepiler..."/>
     <p id="choose-username-hint">Letters, numbers, and underscores only.</p>
     <div id="choose-username-error"></div>
@@ -480,6 +479,9 @@
   const SUPABASE_URL = 'https://cbmviwlufimknywjejnr.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibXZpd2x1Zmlta255d2plam5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NDg2NTAsImV4cCI6MjA4OTAyNDY1MH0.gR_ypDVU_KTjVgPMV-kCKaAYcwvrWAAEYt-8-UxvBJM';
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Read URL hash type before Supabase clears it (e.g. 'invite', 'recovery')
+  const arrivalType = new URLSearchParams(window.location.hash.slice(1)).get('type');
 
   // ── State ──────────────────────────────────────────────────────
   let currentUser = null;
@@ -679,10 +681,10 @@
         .single();
 
       if (!profile?.username) {
-        if (event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' || arrivalType === 'invite') {
           // New invite user arriving for the first time — needs password + username
           showSetPassword('Welcome — please set your password');
-        } else if (event === 'INITIAL_SESSION') {
+        } else {
           // Returning user who skipped username setup
           showChooseUsername();
         }
