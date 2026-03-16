@@ -163,7 +163,8 @@
       text-transform: uppercase;
     }
 
-    #dialog input, #dialog textarea, #login-dialog input {
+    #dialog input, #dialog textarea, #login-dialog input,
+    #set-password-dialog input, #choose-username-dialog input {
       width: 100%;
       background: #eee8d8;
       border: 1px solid #c4a882;
@@ -199,12 +200,14 @@
       border: 1px solid #8b7355;
     }
 
-    #place-btn, #login-submit-btn {
+    #place-btn, #login-submit-btn, #set-password-submit-btn,
+    #choose-username-submit-btn, #reset-submit-btn {
       background: #5a4a32;
       color: #f7f3eb;
     }
 
-    #place-btn:hover, #login-submit-btn:hover { background: #3a2e1e; }
+    #place-btn:hover, #login-submit-btn:hover, #set-password-submit-btn:hover,
+    #choose-username-submit-btn:hover, #reset-submit-btn:hover { background: #3a2e1e; }
 
     /* Login overlay */
     #login-overlay {
@@ -312,9 +315,10 @@
     #choose-username-hint {
       font-size: 0.75rem;
       color: #8b7355;
-      margin-top: -10px;
+      margin-top: -12px;
       margin-bottom: 16px;
       font-style: italic;
+      display: block;
     }
 
     /* Instruction banner */
