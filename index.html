@@ -322,6 +322,42 @@
       display: block;
     }
 
+    /* Password field with show/hide toggle */
+    .pw-field-wrap {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    #set-password-dialog .pw-field-wrap input {
+      margin-bottom: 0;
+      padding-right: 52px;
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #8b7355;
+      font-size: 0.75rem;
+      font-family: Georgia, serif;
+      cursor: pointer;
+      padding: 2px 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .pw-toggle:hover { color: #5a4a32; }
+
+    #set-password-hint {
+      font-size: 0.75rem;
+      color: #8b7355;
+      margin-top: -8px;
+      margin-bottom: 14px;
+      font-style: italic;
+    }
+
     /* Instruction banner */
     #instruction {
       display: none;
@@ -442,9 +478,16 @@
   <div id="set-password-dialog">
     <h3 id="set-password-title">Set your password</h3>
     <label>New password</label>
-    <input type="password" id="new-password" placeholder="••••••••"/>
+    <div class="pw-field-wrap">
+      <input type="password" id="new-password" placeholder="••••••••"/>
+      <button type="button" class="pw-toggle" data-target="new-password">Show</button>
+    </div>
     <label>Confirm password</label>
-    <input type="password" id="confirm-password" placeholder="••••••••"/>
+    <div class="pw-field-wrap">
+      <input type="password" id="confirm-password" placeholder="••••••••"/>
+      <button type="button" class="pw-toggle" data-target="confirm-password">Show</button>
+    </div>
+    <p id="set-password-hint">At least 6 characters.</p>
     <div id="set-password-error"></div>
     <div class="dialog-btns">
       <button id="set-password-submit-btn">Set password</button>
@@ -635,7 +678,34 @@
     document.getElementById('new-password').value = '';
     document.getElementById('confirm-password').value = '';
     document.getElementById('set-password-error').style.display = 'none';
+    // Reset show/hide toggles
+    document.getElementById('new-password').type = 'password';
+    document.getElementById('confirm-password').type = 'password';
+    document.querySelectorAll('.pw-toggle').forEach(btn => btn.textContent = 'Show');
     setPasswordOverlay.classList.add('visible');
+  }
+
+  // Show/hide password toggles
+  document.querySelectorAll('.pw-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.textContent = isPassword ? 'Hide' : 'Show';
+    });
+  });
+
+  // Attempt updateUser with one auto-retry on lock contention
+  async function attemptUpdatePassword(newPw, attemptsLeft = 2) {
+    try {
+      return await client.auth.updateUser({ password: newPw });
+    } catch (err) {
+      if (err.name === 'AbortError' && attemptsLeft > 0) {
+        await new Promise(r => setTimeout(r, 600));
+        return attemptUpdatePassword(newPw, attemptsLeft - 1);
+      }
+      return { error: { message: 'Could not set password. Please try again.' } };
+    }
   }
 
   document.getElementById('set-password-submit-btn').addEventListener('click', async () => {
@@ -656,7 +726,7 @@
       return;
     }
 
-    const { error } = await client.auth.updateUser({ password: newPw });
+    const { error } = await attemptUpdatePassword(newPw);
     if (error) {
       errorEl.textContent = error.message || 'Could not set password. Try again.';
       errorEl.style.display = 'block';
