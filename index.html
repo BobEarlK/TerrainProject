@@ -528,6 +528,7 @@
   // Read URL hash type before Supabase clears it (e.g. 'invite', 'recovery')
   // Must be `let` so we can clear it after use — prevents re-triggering on subsequent auth events
   let arrivalType = new URLSearchParams(window.location.hash.slice(1)).get('type');
+  let settingPassword = false;  // prevents PASSWORD_RECOVERY from re-showing the dialog during updateUser
 
   // ── State ──────────────────────────────────────────────────────
   let currentUser = null;
@@ -726,7 +727,9 @@
       return;
     }
 
+    settingPassword = true;
     const { error } = await attemptUpdatePassword(newPw);
+    settingPassword = false;
     if (error) {
       errorEl.textContent = error.message || 'Could not set password. Try again.';
       errorEl.style.display = 'block';
@@ -746,7 +749,7 @@
   client.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
       await updateUI(session?.user ?? null);
-      showSetPassword('Set your new password');
+      if (!settingPassword) showSetPassword('Set your new password');
       return;
     }
 
