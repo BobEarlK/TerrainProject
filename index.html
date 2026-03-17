@@ -478,7 +478,9 @@
 <script>
   const SUPABASE_URL = 'https://cbmviwlufimknywjejnr.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNibXZpd2x1Zmlta255d2plam5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NDg2NTAsImV4cCI6MjA4OTAyNDY1MH0.gR_ypDVU_KTjVgPMV-kCKaAYcwvrWAAEYt-8-UxvBJM';
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { storage: window.localStorage }
+  });
 
   // Read URL hash type before Supabase clears it (e.g. 'invite', 'recovery')
   // Must be `let` so we can clear it after use — prevents re-triggering on subsequent auth events
@@ -656,7 +658,7 @@
 
     const { error } = await client.auth.updateUser({ password: newPw });
     if (error) {
-      errorEl.textContent = 'Could not set password. Try again.';
+      errorEl.textContent = error.message || 'Could not set password. Try again.';
       errorEl.style.display = 'block';
     } else {
       setPasswordOverlay.classList.remove('visible');
@@ -817,6 +819,21 @@
 
   function closePopup() { popup.style.display = 'none'; }
   document.addEventListener('click', closePopup);
+
+  // ── Enter key support ──────────────────────────────────────────
+  function onEnter(inputEl, btnId) {
+    inputEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById(btnId).click();
+    });
+  }
+
+  onEnter(document.getElementById('login-email'),       'login-submit-btn');
+  onEnter(document.getElementById('login-password'),    'login-submit-btn');
+  onEnter(document.getElementById('reset-email'),       'reset-submit-btn');
+  onEnter(document.getElementById('new-password'),      'set-password-submit-btn');
+  onEnter(document.getElementById('confirm-password'),  'set-password-submit-btn');
+  onEnter(document.getElementById('username-input'),    'choose-username-submit-btn');
+  onEnter(document.getElementById('input-title'),       'place-btn');
 </script>
 
 </body>
