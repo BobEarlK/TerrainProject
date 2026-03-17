@@ -481,11 +481,13 @@
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // Read URL hash type before Supabase clears it (e.g. 'invite', 'recovery')
-  const arrivalType = new URLSearchParams(window.location.hash.slice(1)).get('type');
+  // Must be `let` so we can clear it after use — prevents re-triggering on subsequent auth events
+  let arrivalType = new URLSearchParams(window.location.hash.slice(1)).get('type');
 
   // ── State ──────────────────────────────────────────────────────
   let currentUser = null;
   let currentUsername = null;
+  let showOthers = true;
 
   // ── DOM refs ───────────────────────────────────────────────────
   const terrain = document.getElementById('terrain');
@@ -511,10 +513,16 @@
       addBtn.style.display = 'flex';
       userStatus.innerHTML = `
         <span>${currentUsername ?? user.email}</span>
+        <button id="toggle-others-btn">${showOthers ? 'Hide others' : 'Show others'}</button>
         <button id="signout-btn">Sign out</button>
       `;
       document.getElementById('signout-btn').addEventListener('click', () => {
         client.auth.signOut();
+      });
+      document.getElementById('toggle-others-btn').addEventListener('click', () => {
+        showOthers = !showOthers;
+        document.getElementById('toggle-others-btn').textContent = showOthers ? 'Hide others' : 'Show others';
+        applyVisibilityFilter();
       });
     } else {
       currentUsername = null;
@@ -681,11 +689,12 @@
         .single();
 
       if (!profile?.username) {
-        if (event === 'SIGNED_IN' || arrivalType === 'invite') {
+        if (arrivalType === 'invite') {
           // New invite user arriving for the first time — needs password + username
+          arrivalType = null;  // consume it so re-fired SIGNED_IN events don't re-trigger this
           showSetPassword('Welcome — please set your password');
         } else {
-          // Returning user who skipped username setup
+          // Returning user who skipped username setup (or has no profiles row yet)
           showChooseUsername();
         }
         return;
@@ -703,6 +712,13 @@
     data.forEach(marker => {
       const isOwner = !!(currentUser && marker.user_id === currentUser.id);
       addCairnToTerrain(marker.x, marker.y, marker.title, marker.content, false, isOwner);
+    });
+    applyVisibilityFilter();
+  }
+
+  function applyVisibilityFilter() {
+    document.querySelectorAll('.cairn:not(.cairn-mine):not(.dragging)').forEach(el => {
+      el.style.display = showOthers ? '' : 'none';
     });
   }
 
