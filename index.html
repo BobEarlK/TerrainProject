@@ -621,7 +621,7 @@
 
     if (error) {
       msgEl.style.color = '#8b3a3a';
-      msgEl.textContent = 'Something went wrong. Try again.';
+      msgEl.textContent = error.message || 'Something went wrong. Try again.';
     } else {
       msgEl.style.color = '#3a6b3a';
       msgEl.textContent = 'Check your email for a reset link.';
