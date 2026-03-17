@@ -732,8 +732,8 @@
 
     settingPassword = true;
     const { error } = await attemptUpdatePassword(newPw);
-    settingPassword = false;
     if (error) {
+      settingPassword = false;  // reset only on error — on success, PASSWORD_RECOVERY fires and resets it
       errorEl.textContent = error.message || 'Could not set password. Try again.';
       errorEl.style.display = 'block';
     } else {
@@ -751,8 +751,10 @@
   // All other events: update UI and reload markers.
   client.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
+      const wasSettingPassword = settingPassword;
+      settingPassword = false;  // reset here, not in the submit handler
       await updateUI(session?.user ?? null);
-      if (!settingPassword) showSetPassword('Set your new password');
+      if (!wasSettingPassword) showSetPassword('Set your new password');
       return;
     }
 
