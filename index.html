@@ -746,22 +746,26 @@
     // Password was set — USER_UPDATED fires reliably even when the promise hangs.
     // This is where we dismiss the dialog and move to the next step.
     if (event === 'USER_UPDATED' && passwordWasSet) {
-      console.log('[auth] USER_UPDATED with passwordWasSet — dismissing dialog');
+      console.log('[auth] USER_UPDATED with passwordWasSet — dismissing dialog, deferring DB work');
       setPasswordOverlay.classList.remove('visible');
       const user = session?.user ?? null;
-      await updateUI(user);
-      if (user) {
-        const { data, error: profileErr } = await client.from('profiles').select('username').eq('id', user.id).single();
-        console.log('[auth] USER_UPDATED profile check — username:', data?.username ?? null, '| error:', profileErr?.code ?? null);
-        if (!data?.username) {
-          console.log('[auth] USER_UPDATED — calling showChooseUsername');
-          showChooseUsername();
-        } else {
-          console.log('[auth] USER_UPDATED — has username, loading markers');
-          document.querySelectorAll('.cairn').forEach(el => el.remove());
-          loadMarkers();
+      // Defer all DB work — querying inside USER_UPDATED blocks while auth finalises session
+      setTimeout(async () => {
+        console.log('[follow-up] post-password-set flow starting');
+        await updateUI(user);
+        if (user) {
+          const { data, error: profileErr } = await client.from('profiles').select('username').eq('id', user.id).single();
+          console.log('[follow-up] profile check — username:', data?.username ?? null, '| error:', profileErr?.code ?? null);
+          if (!data?.username) {
+            console.log('[follow-up] calling showChooseUsername');
+            showChooseUsername();
+          } else {
+            console.log('[follow-up] has username, loading markers');
+            document.querySelectorAll('.cairn').forEach(el => el.remove());
+            loadMarkers();
+          }
         }
-      }
+      }, 100);
       return;
     }
 
