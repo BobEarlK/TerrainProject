@@ -663,6 +663,9 @@
     document.getElementById('reset-view').style.display = 'none';
     document.getElementById('login-view').style.display = 'block';
     document.getElementById('login-message').style.display = 'none';
+    const btn = document.getElementById('reset-submit-btn');
+    btn.textContent = 'Send reset link';
+    btn.onclick = null;
   });
 
   document.getElementById('reset-submit-btn').addEventListener('click', async () => {
@@ -677,11 +680,18 @@
     if (error) {
       msgEl.style.color = '#8b3a3a';
       msgEl.textContent = error.message || 'Something went wrong. Try again.';
+      msgEl.style.display = 'block';
     } else {
       msgEl.style.color = '#3a6b3a';
       msgEl.textContent = 'Check your email for a reset link.';
+      msgEl.style.display = 'block';
+      const btn = document.getElementById('reset-submit-btn');
+      btn.textContent = 'Close';
+      btn.onclick = () => {
+        loginOverlay.classList.remove('visible');
+        clearLoginForm();
+      };
     }
-    msgEl.style.display = 'block';
   });
 
   // ── Set password (invite + recovery) ──────────────────────────
