@@ -597,7 +597,11 @@
     const errorEl = document.getElementById('choose-username-error');
     errorEl.style.display = 'none';
 
-    if (!username) return;
+    if (!username) {
+      errorEl.textContent = 'Please enter a username.';
+      errorEl.style.display = 'block';
+      return;
+    }
 
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       errorEl.textContent = 'Letters, numbers, and underscores only.';
@@ -723,9 +727,16 @@
 
     // updateUser's promise can hang due to Web Locks — don't await it.
     // Instead, set the flag and let the USER_UPDATED auth event drive dismissal.
+    // If the call rejects quickly (before hanging), surface the error.
     console.log('[submit] setting passwordWasSet = true, firing updateUser (not awaited)');
     passwordWasSet = true;
-    client.auth.updateUser({ password: newPw });
+    client.auth.updateUser({ password: newPw }).then(({ error }) => {
+      if (error) {
+        passwordWasSet = false;
+        errorEl.textContent = error.message || 'Could not set password. Try again.';
+        errorEl.style.display = 'block';
+      }
+    });
   });
 
   // ── Auth state wiring ──────────────────────────────────────────
