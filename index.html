@@ -755,6 +755,13 @@
   client.auth.onAuthStateChange(async (event, session) => {
     console.log('[auth]', event, '| arrivalType:', arrivalType, '| passwordWasSet:', passwordWasSet, '| user:', session?.user?.email ?? null);
 
+    // Invite arrivals fire both INITIAL_SESSION and SIGNED_IN almost simultaneously.
+    // Skip INITIAL_SESSION so only SIGNED_IN handles the invite flow — no race condition.
+    if (event === 'INITIAL_SESSION' && arrivalType === 'invite') {
+      console.log('[auth] INITIAL_SESSION with invite arrival — skipping, deferring to SIGNED_IN');
+      return;
+    }
+
     if (event === 'PASSWORD_RECOVERY') {
       await updateUI(session?.user ?? null);
       console.log('[auth] PASSWORD_RECOVERY — passwordWasSet is', passwordWasSet, '— will show dialog?', !passwordWasSet);
