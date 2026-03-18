@@ -585,9 +585,11 @@
 
   // ── Choose username ────────────────────────────────────────────
   function showChooseUsername() {
+    console.log('[ui] showChooseUsername called');
     document.getElementById('username-input').value = '';
     document.getElementById('choose-username-error').style.display = 'none';
     document.getElementById('choose-username-overlay').classList.add('visible');
+    console.log('[ui] choose-username overlay visible class added');
   }
 
   document.getElementById('choose-username-submit-btn').addEventListener('click', async () => {
@@ -749,10 +751,13 @@
       const user = session?.user ?? null;
       await updateUI(user);
       if (user) {
-        const { data } = await client.from('profiles').select('username').eq('id', user.id).single();
+        const { data, error: profileErr } = await client.from('profiles').select('username').eq('id', user.id).single();
+        console.log('[auth] USER_UPDATED profile check — username:', data?.username ?? null, '| error:', profileErr?.code ?? null);
         if (!data?.username) {
+          console.log('[auth] USER_UPDATED — calling showChooseUsername');
           showChooseUsername();
         } else {
+          console.log('[auth] USER_UPDATED — has username, loading markers');
           document.querySelectorAll('.cairn').forEach(el => el.remove());
           loadMarkers();
         }
