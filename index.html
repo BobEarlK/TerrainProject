@@ -699,20 +699,7 @@
     });
   });
 
-  // Attempt updateUser with one auto-retry on lock contention
-  async function attemptUpdatePassword(newPw, attemptsLeft = 2) {
-    try {
-      return await client.auth.updateUser({ password: newPw });
-    } catch (err) {
-      if (err.name === 'AbortError' && attemptsLeft > 0) {
-        await new Promise(r => setTimeout(r, 600));
-        return attemptUpdatePassword(newPw, attemptsLeft - 1);
-      }
-      return { error: { message: 'Could not set password. Please try again.' } };
-    }
-  }
-
-  document.getElementById('set-password-submit-btn').addEventListener('click', async () => {
+  document.getElementById('set-password-submit-btn').addEventListener('click', () => {
     const newPw = document.getElementById('new-password').value;
     const confirmPw = document.getElementById('confirm-password').value;
     const errorEl = document.getElementById('set-password-error');
@@ -730,21 +717,11 @@
       return;
     }
 
-    console.log('[submit] setting passwordWasSet = true, then calling updateUser');
+    // updateUser's promise can hang due to Web Locks — don't await it.
+    // Instead, set the flag and let the USER_UPDATED auth event drive dismissal.
+    console.log('[submit] setting passwordWasSet = true, firing updateUser (not awaited)');
     passwordWasSet = true;
-    const { error } = await attemptUpdatePassword(newPw);
-    console.log('[submit] updateUser returned — error:', error ?? null, '| passwordWasSet:', passwordWasSet);
-    if (error) {
-      passwordWasSet = false;
-      errorEl.textContent = error.message || 'Could not set password. Try again.';
-      errorEl.style.display = 'block';
-    } else {
-      setPasswordOverlay.classList.remove('visible');
-      if (currentUser) {
-        const { data } = await client.from('profiles').select('username').eq('id', currentUser.id).single();
-        if (!data?.username) showChooseUsername();
-      }
-    }
+    client.auth.updateUser({ password: newPw });
   });
 
   // ── Auth state wiring ──────────────────────────────────────────
@@ -759,6 +736,20 @@
     // Skip INITIAL_SESSION so only SIGNED_IN handles the invite flow — no race condition.
     if (event === 'INITIAL_SESSION' && arrivalType === 'invite') {
       console.log('[auth] INITIAL_SESSION with invite arrival — skipping, deferring to SIGNED_IN');
+      return;
+    }
+
+    // Password was set — USER_UPDATED fires reliably even when the promise hangs.
+    // This is where we dismiss the dialog and move to the next step.
+    if (event === 'USER_UPDATED' && passwordWasSet) {
+      console.log('[auth] USER_UPDATED with passwordWasSet — dismissing dialog');
+      setPasswordOverlay.classList.remove('visible');
+      const user = session?.user ?? null;
+      await updateUI(user);
+      if (user) {
+        const { data } = await client.from('profiles').select('username').eq('id', user.id).single();
+        if (!data?.username) showChooseUsername();
+      }
       return;
     }
 
