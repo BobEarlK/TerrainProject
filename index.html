@@ -730,12 +730,13 @@
       return;
     }
 
+    passwordWasSet = true;
     const { error } = await attemptUpdatePassword(newPw);
     if (error) {
+      passwordWasSet = false;
       errorEl.textContent = error.message || 'Could not set password. Try again.';
       errorEl.style.display = 'block';
     } else {
-      passwordWasSet = true;
       setPasswordOverlay.classList.remove('visible');
       if (currentUser) {
         const { data } = await client.from('profiles').select('username').eq('id', currentUser.id).single();
