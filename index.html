@@ -730,8 +730,10 @@
       return;
     }
 
+    console.log('[submit] setting passwordWasSet = true, then calling updateUser');
     passwordWasSet = true;
     const { error } = await attemptUpdatePassword(newPw);
+    console.log('[submit] updateUser returned — error:', error ?? null, '| passwordWasSet:', passwordWasSet);
     if (error) {
       passwordWasSet = false;
       errorEl.textContent = error.message || 'Could not set password. Try again.';
@@ -751,8 +753,11 @@
   // INITIAL_SESSION + no profile: returning user without username yet — just prompt username.
   // All other events: update UI and reload markers.
   client.auth.onAuthStateChange(async (event, session) => {
+    console.log('[auth]', event, '| arrivalType:', arrivalType, '| passwordWasSet:', passwordWasSet, '| user:', session?.user?.email ?? null);
+
     if (event === 'PASSWORD_RECOVERY') {
       await updateUI(session?.user ?? null);
+      console.log('[auth] PASSWORD_RECOVERY — passwordWasSet is', passwordWasSet, '— will show dialog?', !passwordWasSet);
       if (!passwordWasSet) showSetPassword('Set your new password');
       return;
     }
@@ -767,13 +772,15 @@
         .eq('id', user.id)
         .single();
 
+      console.log('[auth] profile username:', profile?.username ?? null, '| arrivalType:', arrivalType);
+
       if (!profile?.username) {
         if (arrivalType === 'invite') {
-          // New invite user arriving for the first time — needs password + username
-          arrivalType = null;  // consume it so re-fired SIGNED_IN events don't re-trigger this
+          arrivalType = null;
+          console.log('[auth] showing set-password (invite path)');
           showSetPassword('Welcome — please set your password');
         } else {
-          // Returning user who skipped username setup (or has no profiles row yet)
+          console.log('[auth] showing choose-username');
           showChooseUsername();
         }
         return;
