@@ -562,7 +562,7 @@
       addBtn.style.display = 'flex';
       userStatus.innerHTML = `
         <span>${currentUsername ?? user.email}</span>
-        <button id="toggle-others-btn">${showOthers ? 'Hide others' : 'Show others'}</button>
+        <button id="toggle-others-btn">${showOthers ? 'Showing cairns' : 'Hiding cairns'}</button>
         <button id="signout-btn">Sign out</button>
       `;
       document.getElementById('signout-btn').addEventListener('click', () => {
@@ -570,7 +570,7 @@
       });
       document.getElementById('toggle-others-btn').addEventListener('click', () => {
         showOthers = !showOthers;
-        document.getElementById('toggle-others-btn').textContent = showOthers ? 'Hide others' : 'Show others';
+        document.getElementById('toggle-others-btn').textContent = showOthers ? 'Showing cairns' : 'Hiding cairns';
         applyVisibilityFilter();
       });
     } else {
@@ -886,13 +886,13 @@
       img.style.left = (x * 100) + '%';
       img.style.top = (y * 100) + '%';
 
+      img.addEventListener('click', (ev) => showPopup(ev, title, content));
+
       const { error } = await client.from('markers').insert({
         x, y, title, content,
         user_id: currentUser.id
       });
       if (error) { console.error('Error saving marker:', error); return; }
-
-      img.addEventListener('click', (ev) => showPopup(ev, title, content));
     }
 
     document.addEventListener('mousemove', onMove);
@@ -953,6 +953,10 @@
   onEnter(document.getElementById('confirm-password'),  'set-password-submit-btn');
   onEnter(document.getElementById('username-input'),    'choose-username-submit-btn');
   onEnter(document.getElementById('input-title'),       'place-btn');
+
+  // Load cairns immediately so anonymous visitors see them before auth resolves.
+  // The auth event will reload once session is known, applying ownership tinting.
+  loadMarkers();
 </script>
 
 </body>
