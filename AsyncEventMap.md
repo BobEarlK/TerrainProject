@@ -117,7 +117,8 @@ PASSWORD_RECOVERY fires
 | `updateUI(user)` | **YES** | Must complete before profile check and marker reload |
 | profiles query inside `updateUI` | **YES** | Need username to populate UI |
 | profiles query in auth handler | **YES** | Need result to decide: show choose-username, or load markers |
-| `loadMarkers()` | **NO** | Fires and forgets; cairns appear when ready |
+| Initial cairn load (raw fetch) | **NO** | Bypasses auth lock; no ownership needed; fires and forgets |
+| `loadMarkers()` in auth handler | **NO** | Fires and forgets after auth has settled; reloads with ownership |
 | DB queries inside `loadMarkers` | **YES** (internal) | Need data before we can render markers |
 | `client.auth.signOut()` | **NO** | Event-driven; SIGNED_OUT fires and drives cleanup |
 
@@ -134,8 +135,8 @@ The promise may never resolve due to Web Locks contention between concurrent aut
 **Don't use the lock bypass.**
 `lock: async (name, acquireTimeout, fn) => fn()` was added to fix the `updateUser` AbortError. It also breaks token refresh, causing all DB queries to hang on returning visits with expired tokens. The `updateUser` fix (don't await it) makes the lock bypass redundant. Removed as of 2026-03-19.
 
-**The immediate `loadMarkers()` call races with auth.**
-Called at the bottom of the script before auth settles. For anonymous reads (RLS: anyone can read), this is fine. For ownership tinting, the auth handler's `loadMarkers()` call re-runs after auth settles. If auth is broken, both calls queue and hang.
+**The immediate cairn load must use raw fetch, not the Supabase client.**
+The client queues all DB queries behind the auth lock during token refresh. A raw `fetch()` to the Supabase REST API bypasses this entirely. The initial load is anonymous (no ownership tinting needed), so auth is not required. After auth settles, the auth handler's `loadMarkers()` re-runs via the client to apply ownership tinting. If auth is broken or slow, cairns still appear immediately.
 
 ---
 

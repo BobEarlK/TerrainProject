@@ -113,6 +113,7 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 **Stack:** Pure HTML/CSS/JS frontend. No backend framework (Flask removed — not needed). Supabase for DB + auth. Render for hosting. GitHub for source control + deploy trigger.
 
 **Deploy:** Edit `index.html` → commit in GitHub Desktop → push → live in ~1 min.
+**Source control:** Bob commits and pushes via GitHub Desktop. Claude makes file edits only — does not commit or push.
 **Repo:** https://github.com/BobEarlK/TerrainProject.git
 **Files:** `/Users/bobearl/Developer/TerrainProject/` — mount this in Cowork each session.
 
