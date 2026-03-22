@@ -24,24 +24,27 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 - Full auth flow: invite email → set password → choose username → signed in
 - Password reset: forgot password → email → reset link → set new password → lands in app
 - Sign out: returns to anonymous view; all cairns remain visible
-- Your cairns visually distinct (amber tint); toggle to show/hide others' cairns
+- Your cairns visually distinct (amber tint); toggle ("All cairns" / "My cairns") to show/hide others' cairns
 - RLS: read = anyone; write = owner only
 
 **Testing status:**
 - Playwright end-to-end test suite set up (TypeScript, 3 browsers)
-- `anonymous.spec.ts` — **33/33 passing** ✓ (covers all 11 ANONYMOUS-state behaviors × 3 browsers)
-- `authenticated.spec.ts` — **failing** — see "Known issues" below
-- `debug.spec.ts` — throwaway diagnostic file, should be deleted next session
+- `anonymous.spec.ts` — **33/33 passing** ✓
+- `authenticated.spec.ts` — **45/45 passing** ✓ (all 3 browsers)
+- `dialogs.spec.ts` — **passing** ✓ (all 3 browsers) — behaviors 12–25, 47–55
+- `cairns.spec.ts` — **2/4 failing** — behaviors 45 and 46 fail because testUser1's cairn doesn't get `.cairn-mine` class
 - `BEHAVIORS.md` — 55 numbered behaviors organized by auth state (in `tests/`)
-- `MANUAL_TEST_CHECKLIST.md` — step-by-step scripts for email-dependent flows (invite, password reset)
+- `MANUAL_TEST_CHECKLIST.md` — step-by-step scripts for email-dependent flows
+- Tagged `tests-green-pre-refactor` in git (anonymous + authenticated green, before refactor work)
 
 **Known issues / deferred:**
-- **[BLOCKING — next session]** `authenticated.spec.ts` all tests fail: `#user-status span` never appears. Root cause: `updateUI()` ran a DB query (`profiles` fetch) via `await` *before* setting `innerHTML`, so the span never rendered until the DB query resolved — and due to the Web Locks issue (see Archive Phase 5), that query may hang indefinitely on returning visits. **Fix is written and committed locally (`updateUI` now renders the span before the `await`)** but **not yet deployed**. Deploy via GitHub Desktop → push → Render, then re-run `npx playwright test authenticated.spec.ts --project=chromium` to verify. After deploy, verify testUser1 has a username in `profiles` table (needed for ownership-tinting tests).
+- **[BLOCKING — cairns.spec.ts]** Behaviors 45 and 46 failing. Root cause: testUser1 has no cairn that Playwright can confirm ownership of via `.cairn-mine`. Fix: sign in to the live app as testUser1, place a real cairn — the app stamps the correct `user_id` automatically. The manually-inserted test cairn at x:-1,y:-1 had a mismatched user_id. **Do this first next session.**
+- **[DEFERRED]** Login dialog didn't dismiss after sign-in (same Web Locks pattern as updateUser/signOut). Fix deployed: close overlay from SIGNED_IN event if visible. Needs manual verification next session.
+- **[DEFERRED]** Apple Passwords silent failure on set-password dialog. Root cause: Web Locks hang prevents `.then()` from firing. Needs timeout fallback + better error message. Revisit when wife is available to test.
 - `console.log` debug lines still in code — strip before public launch
 - No way to change username after initial setup
-- Apple Passwords doesn't work on the set-password dialog — Apple Passwords does fill both fields correctly, so the issue is likely a Supabase-side password policy rejecting the generated password format. Needs investigation: check Supabase Auth → Password settings. Should display a clear error rather than failing silently. Reported by beta tester.
-- `#forgot-link` has `margin-top: -10px` causing real UX bug (Chromium click-through to password field) — workaround in tests but real fix belongs in CSS
-- `index.html` is a single large file — split into `styles.css`, `auth.js`, `cairns.js`, `main.js` when ready; file-splitting heuristic in PROJECT_HUB.md
+- `#forgot-link` has `margin-top: -10px` causing real UX bug (Chromium click-through) — workaround in tests, real fix belongs in CSS
+- `index.html` is a single large file — split into `styles.css`, `auth.js`, `cairns.js`, `main.js` when ready
 
 **DB tables:** `markers` (id, x, y, title, content, user_id), `profiles` (id, username)
 **Auth:** Supabase email+password; public signups disabled; Bob invites users manually
@@ -63,20 +66,23 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 
 ## 4. Next Up
 
-**Immediate — unblock testing:**
-1. Deploy `updateUI` fix (commit in GitHub Desktop → push)
-2. Verify `authenticated.spec.ts` passes on Chromium, then all 3 browsers
-3. Confirm testUser1 has a username in `profiles` table in Supabase
-4. Delete `tests/debug.spec.ts` (throwaway file)
-5. Write `dialogs.spec.ts` (behaviors 12–25, 47–55: password/username validation, Enter-key support)
-6. Write `cairns.spec.ts` (behaviors 44–46: cross-state cairn visibility)
+**Immediate — next session start:**
+1. Sign in to live app as testUser1 and place a real cairn (fixes `.cairn-mine` ownership for cairns.spec.ts)
+2. Verify login dialog now dismisses correctly after sign-in (manual check — fix deployed)
+3. Run `npx playwright test --project=chromium` — expect cairns.spec.ts behaviors 45+46 to pass
+4. Run full suite across all 3 browsers — confirm clean
+5. Update git tag: `tests-green-post-refactor-prep` once all passing
+6. Begin refactor: split `index.html` → `styles.css`, `auth.js`, `cairns.js`, `main.js` — run tests after each split
 
-**After tests are green:**
-- [ ] Invite wife (beta tester) — she will test UX and suggest UI improvements
-- [ ] Purchase Topograph license → regenerate background without watermark
-- [ ] Fix `#forgot-link` negative margin-top CSS bug
+**After tests are green / before inviting wife:**
+- [ ] Fix `#forgot-link` negative margin-top CSS bug (real fix in CSS)
+- [ ] Add timeout fallback to set-password for Apple Passwords silent failure
 - [ ] Strip `console.log` debug lines
-- [ ] Split `index.html` into `styles.css`, `auth.js`, `cairns.js`, `main.js`
+- [ ] Purchase Topograph license → regenerate background without watermark
+- [ ] Invite wife (beta tester)
+
+**After beta feedback:**
+- [ ] Act on UI/UX notes from wife
 
 **After beta feedback:**
 - [ ] Act on UI/UX notes from wife
