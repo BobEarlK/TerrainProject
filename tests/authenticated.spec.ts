@@ -71,17 +71,6 @@ test.describe('AUTHENTICATED state', () => {
     await expect(page.locator('#add-btn')).toBeHidden();
   });
 
-  // TEMPORARY DIAGNOSTIC — delete after sign-out bug is resolved
-  test('DIAG: auth events after sign out', async ({ page }) => {
-    const events: string[] = [];
-    page.on('console', msg => {
-      if (msg.text().startsWith('[auth]')) events.push(msg.text());
-    });
-    await page.locator('#signout-btn').click();
-    await page.waitForTimeout(3000);
-    console.log('AUTH EVENTS AFTER SIGNOUT:\n' + events.join('\n'));
-  });
-
   // Behavior 37
   test('Clicking Add opens the cairn placement dialog', async ({ page }) => {
     await page.locator('#add-btn').click();
