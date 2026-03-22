@@ -182,8 +182,8 @@ test.describe('Enter-key support', () => {
     await expect(page.locator('#reset-view')).toBeVisible();
     await page.locator('#reset-email').fill('nobody@example.com');
     await page.locator('#reset-email').press('Enter');
-    // Success message or error — either means the form submitted
-    const responded = page.locator('#reset-message, #reset-error');
+    // Success message appears in #login-message after submit
+    const responded = page.locator('#login-message');
     await expect(responded.first()).toBeVisible({ timeout: 8000 });
   });
 
