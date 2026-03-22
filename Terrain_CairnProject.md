@@ -63,13 +63,23 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 
 ## 4. Next Up
 
-**Immediate (before/during beta):**
+**Immediate — unblock testing:**
+1. Deploy `updateUI` fix (commit in GitHub Desktop → push)
+2. Verify `authenticated.spec.ts` passes on Chromium, then all 3 browsers
+3. Confirm testUser1 has a username in `profiles` table in Supabase
+4. Delete `tests/debug.spec.ts` (throwaway file)
+5. Write `dialogs.spec.ts` (behaviors 12–25, 47–55: password/username validation, Enter-key support)
+6. Write `cairns.spec.ts` (behaviors 44–46: cross-state cairn visibility)
+
+**After tests are green:**
 - [ ] Invite wife (beta tester) — she will test UX and suggest UI improvements
 - [ ] Purchase Topograph license → regenerate background without watermark
+- [ ] Fix `#forgot-link` negative margin-top CSS bug
+- [ ] Strip `console.log` debug lines
+- [ ] Split `index.html` into `styles.css`, `auth.js`, `cairns.js`, `main.js`
 
 **After beta feedback:**
 - [ ] Act on UI/UX notes from wife
-- [ ] Strip console.log debug lines when ready for wider use
 
 ---
 
@@ -140,6 +150,37 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 ---
 
 ## 8. Archive *(Claude: skip unless debugging a recurrence — open the relevant section)*
+
+---
+
+<details>
+<summary><strong>Phase 6 — Playwright test suite setup</strong> (2026-03-20 to 2026-03-22 · Moderate effort · Anonymous passing; authenticated blocked on deploy)</summary>
+
+**Goal:** Write a behavior-driven test suite before refactoring the codebase, to serve as a safety net.
+
+**Infrastructure set up:**
+- Playwright installed with TypeScript; `playwright.config.ts` configured: `fullyParallel: false` (real DB), `baseURL: https://www.pandemicerratic.com` (www required — redirect origin matching for storageState), `trace: retain-on-failure`
+- Auth state machine documented in `AsyncEventMap.md`: 4 states (ANONYMOUS, SETTING_PASSWORD, CHOOSING_USERNAME, AUTHENTICATED), transition table
+- `BEHAVIORS.md` — 55 numbered behaviors organized by state; spec files reference behavior numbers
+- `MANUAL_TEST_CHECKLIST.md` — step-by-step manual test scripts for email-dependent flows
+- `.env` / `.env.example` — test credentials (gitignored)
+- Two Supabase test users created: testUser1@mock.com, testUser2@mock.com
+- `global-setup.ts` — signs in as testUser1 once before each test run; saves storageState to `playwright/.auth/user1.json`
+
+**anonymous.spec.ts — 33/33 passing ✓**
+- 11 tests × 3 browsers
+- Key fix: Chromium's strict hit-testing routes clicks to the password input when `#forgot-link` has `margin-top: -10px` overlapping it. `force: true` doesn't help (still coordinate-based). Fix: `page.evaluate(() => document.getElementById('forgot-link')?.click())` — dispatches click in JS context, bypasses hit-testing entirely.
+- Helper `openLoginDialog(page)` waits for overlay to be visible before interacting.
+
+**authenticated.spec.ts — all failing (unresolved going into next session)**
+- storageState injection confirmed working (SIGNED_IN event fires)
+- Root cause: `updateUI(user)` awaited a DB query *before* setting `userStatus.innerHTML`. The DB query can hang due to Web Locks issue on returning visits. Span never rendered → `#user-status span` selector times out.
+- Fix written: moved `userStatus.innerHTML` to render *before* the `await` in `updateUI`. Span appears instantly with email, then updates to username when query resolves. **Not yet deployed.**
+
+**Things confirmed NOT to work — do not retry:**
+- Increasing `beforeEach` timeout (10s → 30s) — span still never appears; timing is not the issue
+- `force: true` on Playwright clicks for elements with overlapping siblings — still coordinate-based; use `page.evaluate` instead
+</details>
 
 ---
 
