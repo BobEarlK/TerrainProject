@@ -500,7 +500,7 @@
   <div id="choose-username-dialog">
     <h3>Choose a username</h3>
     <input type="text" id="username-input" placeholder="e.g. wanderer, stonepiler..."/>
-    <p id="choose-username-hint">Letters, numbers, and underscores only.</p>
+    <p id="choose-username-hint">Letters, numbers, spaces, and underscores only.</p>
     <div id="choose-username-error"></div>
     <div class="dialog-btns">
       <button id="choose-username-submit-btn">Save</button>
@@ -613,8 +613,8 @@
       return;
     }
 
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      errorEl.textContent = 'Letters, numbers, and underscores only.';
+    if (!/^[a-zA-Z0-9_ ]+$/.test(username)) {
+      errorEl.textContent = 'Letters, numbers, spaces, and underscores only.';
       errorEl.style.display = 'block';
       return;
     }
