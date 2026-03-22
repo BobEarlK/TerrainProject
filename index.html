@@ -988,6 +988,10 @@
       });
     })
     .catch(e => console.error('Initial cairn load failed:', e));
+
+  // Expose dialog helpers for Playwright tests
+  window.showSetPassword = showSetPassword;
+  window.showChooseUsername = showChooseUsername;
 </script>
 
 </body>

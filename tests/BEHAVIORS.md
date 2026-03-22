@@ -53,7 +53,7 @@
 21. Add button is hidden
 22. No cancel button — user must choose a username to proceed
 23. Submitting an empty username shows an error
-24. Submitting a username with invalid characters (spaces, punctuation) shows an error
+24. Submitting a username with invalid characters (punctuation, symbols) shows an error — spaces are allowed
 25. Submitting a valid username saves it and transitions to AUTHENTICATED
 
 ---
