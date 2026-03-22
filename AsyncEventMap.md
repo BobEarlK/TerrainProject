@@ -1,5 +1,5 @@
 # Async Event Map — Terrain / Cairn
-*Last updated: 2026-03-19*
+*Last updated: 2026-03-20*
 
 > **Purpose:** A living document. Before adding any feature that touches auth, DB queries, or page load order, read this first. Update it when anything changes. Most bugs in this project have been sequencing bugs — this is why.
 
@@ -37,6 +37,42 @@ These two layers are mostly independent, but DB queries wait for auth to reach a
 
 ---
 
+## Auth state machine
+
+The app is always in one of four states. Every feature that depends on auth or DB access should identify which state(s) it applies to before writing any code.
+
+### States
+
+| State | Session? | Username? | UI |
+|---|---|---|---|
+| ANONYMOUS | No | — | Sign In button; cairns visible (untinted); no add button |
+| SETTING_PASSWORD | Yes | No | Set-password dialog visible; add button hidden |
+| CHOOSING_USERNAME | Yes | No | Choose-username dialog visible; add button hidden |
+| AUTHENTICATED | Yes | Yes | Username in capsule; add button visible; cairns with ownership tinting |
+
+### Transitions
+
+| From | To | Trigger |
+|---|---|---|
+| ANONYMOUS | SETTING_PASSWORD | `SIGNED_IN` fires with `arrivalType === 'invite'` |
+| ANONYMOUS | SETTING_PASSWORD | `PASSWORD_RECOVERY` fires |
+| ANONYMOUS | AUTHENTICATED | `SIGNED_IN` or `INITIAL_SESSION` fires; user has existing username |
+| SETTING_PASSWORD | CHOOSING_USERNAME | `USER_UPDATED` fires (`passwordWasSet = true`); profile query finds no username |
+| SETTING_PASSWORD | AUTHENTICATED | `USER_UPDATED` fires (`passwordWasSet = true`); profile query finds existing username |
+| CHOOSING_USERNAME | AUTHENTICATED | Username saved to profiles; `loadMarkers()` called |
+| AUTHENTICATED | ANONYMOUS | `signOut()` called; `SIGNED_OUT` fires |
+
+### Slotting in a new feature
+
+Identify which state your feature belongs to, then hook into the right transition:
+- Appears when fully onboarded → AUTHENTICATED, or the → AUTHENTICATED transition
+- Appears only during invite onboarding → SETTING_PASSWORD with `arrivalType === 'invite'`
+- Appears for anonymous users → ANONYMOUS
+
+If a feature spans states (e.g. visible in both AUTHENTICATED and ANONYMOUS), treat each state separately and compose.
+
+---
+
 ## Auth event scenarios
 
 ### Anonymous visitor (no stored session)
@@ -62,18 +98,19 @@ Both profiles queries need a valid auth token. If the token is expired and refre
 
 ---
 
-### Returning logged-in user (expired stored session) ← CURRENT BUG
+### Returning logged-in user (expired stored session)
 ```
-Supabase attempts token refresh  — requires internal lock
-  → lock bypass (our workaround) breaks the refresh
-  → auth state never settles
-  → all DB queries queue behind auth and hang forever
-SIGNED_IN fires (from stored data, doesn't need network)
-  → updateUI(user) called
-      → profiles query queued → hangs
-  → innerHTML never set; cairns never load
+Supabase reads stored session from localStorage
+  → token is expired; Supabase makes a network call to refresh it
+  → refresh succeeds; session updated in localStorage
+INITIAL_SESSION fires (session = refreshed user)
+  → await updateUI(user)
+      → await profiles query    — token now valid; executes normally
+      → sets username + buttons
+  → await profiles query (username check)
+  → loadMarkers()               — re-runs with ownership tinting
 ```
-**Root cause:** The `lock: async (name, acquireTimeout, fn) => fn()` bypass was added to fix `updateUser` hanging. It also breaks token refresh. See "Await decisions" below.
+**Previously broken** by the Web Locks bypass (`lock: async (name, acquireTimeout, fn) => fn()`), which prevented Supabase from serialising its internal token refresh. That bypass was removed 2026-03-19 — token refresh now works correctly. Do not re-add the lock bypass for any reason; see Known Hazards.
 
 ---
 

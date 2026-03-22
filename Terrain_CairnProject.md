@@ -1,5 +1,5 @@
 # Terrain / Cairn Project
-*Last updated: 2026-03-18*
+*Last updated: 2026-03-22*
 
 > **Claude:** Read sections 1–7 each session. Section 8 (Archive) only if debugging a recurrence of a previously solved problem.
 
@@ -13,7 +13,7 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 
 ---
 
-## 2. Current State *(as of 2026-03-18)*
+## 2. Current State *(as of 2026-03-22)*
 
 **Live at:** pandemicErratic.com — single `index.html`, all code in one file.
 
@@ -27,12 +27,25 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 - Your cairns visually distinct (amber tint); toggle to show/hide others' cairns
 - RLS: read = anyone; write = owner only
 
+**Testing status:**
+- Playwright end-to-end test suite set up (TypeScript, 3 browsers)
+- `anonymous.spec.ts` — **33/33 passing** ✓ (covers all 11 ANONYMOUS-state behaviors × 3 browsers)
+- `authenticated.spec.ts` — **failing** — see "Known issues" below
+- `debug.spec.ts` — throwaway diagnostic file, should be deleted next session
+- `BEHAVIORS.md` — 55 numbered behaviors organized by auth state (in `tests/`)
+- `MANUAL_TEST_CHECKLIST.md` — step-by-step scripts for email-dependent flows (invite, password reset)
+
 **Known issues / deferred:**
+- **[BLOCKING — next session]** `authenticated.spec.ts` all tests fail: `#user-status span` never appears. Root cause: `updateUI()` ran a DB query (`profiles` fetch) via `await` *before* setting `innerHTML`, so the span never rendered until the DB query resolved — and due to the Web Locks issue (see Archive Phase 5), that query may hang indefinitely on returning visits. **Fix is written and committed locally (`updateUI` now renders the span before the `await`)** but **not yet deployed**. Deploy via GitHub Desktop → push → Render, then re-run `npx playwright test authenticated.spec.ts --project=chromium` to verify. After deploy, verify testUser1 has a username in `profiles` table (needed for ownership-tinting tests).
 - `console.log` debug lines still in code — strip before public launch
 - No way to change username after initial setup
+- Apple Passwords doesn't work on the set-password dialog — Apple Passwords does fill both fields correctly, so the issue is likely a Supabase-side password policy rejecting the generated password format. Needs investigation: check Supabase Auth → Password settings. Should display a clear error rather than failing silently. Reported by beta tester.
+- `#forgot-link` has `margin-top: -10px` causing real UX bug (Chromium click-through to password field) — workaround in tests but real fix belongs in CSS
+- `index.html` is a single large file — split into `styles.css`, `auth.js`, `cairns.js`, `main.js` when ready; file-splitting heuristic in PROJECT_HUB.md
 
 **DB tables:** `markers` (id, x, y, title, content, user_id), `profiles` (id, username)
 **Auth:** Supabase email+password; public signups disabled; Bob invites users manually
+**Test users:** Two dedicated Playwright test accounts exist in Supabase (testUser1@mock.com / testUser1, testUser2@mock.com / testUser2). Both should have profile rows with usernames. Credentials stored in local `.env` file (gitignored) — see `.env.example` for structure.
 
 ---
 
