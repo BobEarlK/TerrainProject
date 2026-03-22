@@ -566,8 +566,11 @@
         <button id="toggle-others-btn">${showOthers ? 'Showing cairns' : 'Hiding cairns'}</button>
         <button id="signout-btn">Sign out</button>
       `;
-      document.getElementById('signout-btn').addEventListener('click', () => {
-        client.auth.signOut();
+      document.getElementById('signout-btn').addEventListener('click', async () => {
+        client.auth.signOut(); // fire and forget — SIGNED_OUT hangs like updateUser did
+        await updateUI(null);  // drive UI update directly from click, don't wait for event
+        document.querySelectorAll('.cairn').forEach(el => el.remove());
+        loadMarkers();
       });
       document.getElementById('toggle-others-btn').addEventListener('click', () => {
         showOthers = !showOthers;
