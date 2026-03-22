@@ -66,8 +66,8 @@
 27. Sign Out button is visible in the status capsule
 28. Toggle button is visible in the status capsule
 29. Add button is visible
-30. Toggle button reads "Showing cairns" when other cairns are visible
-31. Toggle button reads "Hiding cairns" when other cairns are hidden
+30. Toggle button reads "All cairns" when other cairns are visible
+31. Toggle button reads "My cairns" when other cairns are hidden
 32. Clicking the toggle hides other users' cairns (not the current user's)
 33. Clicking the toggle again shows other users' cairns
 34. Clicking Sign Out returns the app to ANONYMOUS state

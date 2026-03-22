@@ -563,7 +563,7 @@
       addBtn.style.display = 'flex';
       userStatus.innerHTML = `
         <span>${currentUsername ?? user.email}</span>
-        <button id="toggle-others-btn">${showOthers ? 'Showing cairns' : 'Hiding cairns'}</button>
+        <button id="toggle-others-btn">${showOthers ? 'All cairns' : 'My cairns'}</button>
         <button id="signout-btn">Sign out</button>
       `;
       document.getElementById('signout-btn').addEventListener('click', async () => {
@@ -574,7 +574,7 @@
       });
       document.getElementById('toggle-others-btn').addEventListener('click', () => {
         showOthers = !showOthers;
-        document.getElementById('toggle-others-btn').textContent = showOthers ? 'Showing cairns' : 'Hiding cairns';
+        document.getElementById('toggle-others-btn').textContent = showOthers ? 'All cairns' : 'My cairns';
         applyVisibilityFilter();
       });
 
@@ -805,6 +805,13 @@
       console.log('[auth] PASSWORD_RECOVERY — passwordWasSet is', passwordWasSet, '— will show dialog?', !passwordWasSet);
       if (!passwordWasSet) showSetPassword('Set your new password');
       return;
+    }
+
+    // Close login overlay if it's open — signInWithPassword promise can hang (Web Locks),
+    // so we drive dismissal from the auth event rather than the promise's else branch.
+    if (event === 'SIGNED_IN' && loginOverlay.classList.contains('visible')) {
+      loginOverlay.classList.remove('visible');
+      clearLoginForm();
     }
 
     const user = session?.user ?? null;

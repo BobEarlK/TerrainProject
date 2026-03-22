@@ -38,14 +38,14 @@ test.describe('AUTHENTICATED state', () => {
   });
 
   // Behavior 30
-  test('Toggle button reads "Showing cairns" when other cairns are visible', async ({ page }) => {
-    await expect(page.locator('#toggle-others-btn')).toHaveText('Showing cairns');
+  test('Toggle button reads "All cairns" when other cairns are visible', async ({ page }) => {
+    await expect(page.locator('#toggle-others-btn')).toHaveText('All cairns');
   });
 
   // Behavior 31
-  test('Toggle button reads "Hiding cairns" when other cairns are hidden', async ({ page }) => {
+  test('Toggle button reads "My cairns" when other cairns are hidden', async ({ page }) => {
     await page.locator('#toggle-others-btn').click();
-    await expect(page.locator('#toggle-others-btn')).toHaveText('Hiding cairns');
+    await expect(page.locator('#toggle-others-btn')).toHaveText('My cairns');
   });
 
   // Behaviors 32–33: require cairns owned by testUser2 to be present in the DB.
