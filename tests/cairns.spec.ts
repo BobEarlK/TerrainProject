@@ -29,6 +29,23 @@ test.describe('Cairn visibility — authenticated', () => {
     await expect(page.locator('#user-status span')).toBeVisible({ timeout: 15000 });
   });
 
+  // DIAGNOSTIC — delete after cairn-mine bug resolved
+  test('DIAG: cairn ownership state', async ({ page }) => {
+    await page.waitForTimeout(3000); // let loadMarkers complete
+    const result = await page.evaluate(() => {
+      const all = document.querySelectorAll('.cairn');
+      const mine = document.querySelectorAll('.cairn-mine');
+      const cu = (window as any).currentUser;
+      return {
+        totalCairns: all.length,
+        mineCairns: mine.length,
+        currentUserId: cu?.id ?? null,
+      };
+    });
+    console.log('DIAG:', JSON.stringify(result));
+    expect(true).toBe(true); // always passes — we just want the log
+  });
+
   // Behavior 44 (part 2)
   test('Cairns are visible to authenticated users', async ({ page }) => {
     await expect(page.locator('.cairn').first()).toBeVisible();

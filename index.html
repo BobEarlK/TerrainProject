@@ -998,9 +998,10 @@
     })
     .catch(e => console.error('Initial cairn load failed:', e));
 
-  // Expose dialog helpers for Playwright tests
+  // Expose helpers and state for Playwright tests
   window.showSetPassword = showSetPassword;
   window.showChooseUsername = showChooseUsername;
+  Object.defineProperty(window, 'currentUser', { get: () => currentUser });
 </script>
 
 </body>
