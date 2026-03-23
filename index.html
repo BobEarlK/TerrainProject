@@ -815,8 +815,14 @@
     }
 
     const user = session?.user ?? null;
-    await updateUI(user);
+    updateUI(user); // not awaited — currentUser is set synchronously as first line of updateUI
 
+    // Load cairns immediately — no reason to wait for profile queries.
+    // Ownership tinting is correct because currentUser is already set.
+    document.querySelectorAll('.cairn').forEach(el => el.remove());
+    loadMarkers();
+
+    // Profile check runs in parallel — only needed to gate missing-username dialogs.
     if (user) {
       const { data: profile } = await client
         .from('profiles')
@@ -835,12 +841,8 @@
           console.log('[auth] showing choose-username');
           showChooseUsername();
         }
-        return;
       }
     }
-
-    document.querySelectorAll('.cairn').forEach(el => el.remove());
-    loadMarkers();
   });
 
   // ── Load existing markers ──────────────────────────────────────
