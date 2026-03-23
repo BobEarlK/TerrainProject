@@ -30,8 +30,12 @@ test.describe('Cairn visibility — authenticated', () => {
   });
 
   // DIAGNOSTIC — delete after cairn-mine bug resolved
+  // Note: navigates independently so we capture ALL console output from page load onward
   test('DIAG: cairn ownership state', async ({ page }) => {
-    await page.waitForTimeout(3000); // let loadMarkers complete
+    const logs: string[] = [];
+    page.on('console', msg => logs.push(msg.text()));
+    await page.goto('/');
+    await page.waitForTimeout(4000);
     const result = await page.evaluate(() => {
       const all = document.querySelectorAll('.cairn');
       const mine = document.querySelectorAll('.cairn-mine');
@@ -42,8 +46,9 @@ test.describe('Cairn visibility — authenticated', () => {
         currentUserId: cu?.id ?? null,
       };
     });
-    console.log('DIAG:', JSON.stringify(result));
-    expect(true).toBe(true); // always passes — we just want the log
+    console.log('DIAG state:', JSON.stringify(result));
+    console.log('DIAG logs:', logs.filter(l => l.startsWith('[auth]') || l.startsWith('[load]') || l.startsWith('[submit]') || l.startsWith('[follow')).join('\n  '));
+    expect(true).toBe(true);
   });
 
   // Behavior 44 (part 2)

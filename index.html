@@ -849,6 +849,7 @@
   async function loadMarkers() {
     const { data, error } = await client.from('markers').select('*');
     if (error) { console.error('Error loading markers:', error); return; }
+    console.log('[load] loadMarkers processing', data.length, 'markers, currentUser:', currentUser?.id ?? null);
     data.forEach(marker => {
       const isOwner = !!(currentUser && marker.user_id === currentUser.id);
       addCairnToTerrain(marker.x, marker.y, marker.title, marker.content, false, isOwner);
