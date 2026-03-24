@@ -801,7 +801,10 @@
     }
 
     if (event === 'PASSWORD_RECOVERY') {
-      await updateUI(session?.user ?? null);
+      // Not awaited — same lock-reentrancy reason as checkProfileAfterSignIn.
+      // updateUI's sync part (setting currentUser, updating innerHTML) runs immediately;
+      // the internal username fetch suspends updateUI but not this callback.
+      updateUI(session?.user ?? null);
       console.log('[auth] PASSWORD_RECOVERY — passwordWasSet is', passwordWasSet, '— will show dialog?', !passwordWasSet);
       if (!passwordWasSet) showSetPassword('Set your new password');
       return;
