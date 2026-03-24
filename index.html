@@ -822,28 +822,35 @@
     document.querySelectorAll('.cairn').forEach(el => el.remove());
     loadMarkers();
 
-    // Profile check runs in parallel — only needed to gate missing-username dialogs.
-    if (user) {
-      const { data: profile } = await client
-        .from('profiles')
-        .select('username')
-        .eq('id', user.id)
-        .single();
+    // Profile check — must run outside the auth lock context.
+    // Supabase holds its internal lock while notifying auth subscribers. Any client.from()
+    // call made directly inside this callback tries to re-acquire the same lock → deadlock.
+    // Calling checkProfileAfterSignIn() without await breaks out of that context: the
+    // function suspends at its own await, control returns here, the callback returns,
+    // the lock releases, and the profile fetch can proceed normally.
+    if (user) checkProfileAfterSignIn(user);
+  });
 
-      console.log('[auth] profile username:', profile?.username ?? null, '| arrivalType:', arrivalType);
+  async function checkProfileAfterSignIn(user) {
+    const { data: profile } = await client
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .single();
 
-      if (!profile?.username) {
-        if (arrivalType === 'invite') {
-          arrivalType = null;
-          console.log('[auth] showing set-password (invite path)');
-          showSetPassword('Welcome — please set your password');
-        } else {
-          console.log('[auth] showing choose-username');
-          showChooseUsername();
-        }
+    console.log('[auth] profile username:', profile?.username ?? null, '| arrivalType:', arrivalType);
+
+    if (!profile?.username) {
+      if (arrivalType === 'invite') {
+        arrivalType = null;
+        console.log('[auth] showing set-password (invite path)');
+        showSetPassword('Welcome — please set your password');
+      } else {
+        console.log('[auth] showing choose-username');
+        showChooseUsername();
       }
     }
-  });
+  }
 
   // ── Load existing markers ──────────────────────────────────────
   async function loadMarkers() {

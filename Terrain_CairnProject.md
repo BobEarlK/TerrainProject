@@ -38,7 +38,7 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 - Tagged `tests-green-pre-refactor` in git (anonymous + authenticated green, before refactor work)
 
 **Known issues / deferred:**
-- **[BLOCKING — cairns.spec.ts]** Behaviors 45 and 46 failing. Root cause: testUser1 has no cairn that Playwright can confirm ownership of via `.cairn-mine`. Fix: sign in to the live app as testUser1, place a real cairn — the app stamps the correct `user_id` automatically. The manually-inserted test cairn at x:-1,y:-1 had a mismatched user_id. **Do this first next session.**
+- **[BLOCKING — cairns.spec.ts]** Behaviors 45 and 46 failing. Root cause identified: the raw anonymous fetch at the bottom of the script loads all cairns with `isOwner = false`. If this fetch resolves *after* `loadMarkers()` (the auth-aware reload), it overwrites the `.cairn-mine` cairns with un-owned ones. Diagnostic confirmed: `currentUser.id` is correct, user_id in DB matches, but `.cairn-mine` never appears. Fix: the initial raw fetch must not run if auth has already settled, OR `loadMarkers()` must always run last and clear the anonymous load. Do not change code without a clear fix — read the debugging discipline note in PROJECT_HUB.md first.
 - **[DEFERRED]** Login dialog didn't dismiss after sign-in (same Web Locks pattern as updateUser/signOut). Fix deployed: close overlay from SIGNED_IN event if visible. Needs manual verification next session.
 - **[DEFERRED]** Apple Passwords silent failure on set-password dialog. Root cause: Web Locks hang prevents `.then()` from firing. Needs timeout fallback + better error message. Revisit when wife is available to test.
 - `console.log` debug lines still in code — strip before public launch
