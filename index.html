@@ -767,10 +767,13 @@
   client.auth.onAuthStateChange(async (event, session) => {
     console.log('[auth]', event, '| arrivalType:', arrivalType, '| passwordWasSet:', passwordWasSet, '| user:', session?.user?.email ?? null);
 
-    // Invite arrivals fire both INITIAL_SESSION and SIGNED_IN almost simultaneously.
-    // Skip INITIAL_SESSION so only SIGNED_IN handles the invite flow — no race condition.
-    if (event === 'INITIAL_SESSION' && arrivalType === 'invite') {
-      console.log('[auth] INITIAL_SESSION with invite arrival — skipping, deferring to SIGNED_IN');
+    // Supabase fires both INITIAL_SESSION and SIGNED_IN on authenticated page loads.
+    // INITIAL_SESSION is redundant when the user is already signed in — SIGNED_IN will
+    // handle the full flow. Skipping it prevents double loadMarkers, double profile checks,
+    // and spurious choose-username dialogs. For anonymous users (null session), INITIAL_SESSION
+    // is the only event and must be processed normally.
+    if (event === 'INITIAL_SESSION' && session?.user) {
+      console.log('[auth] INITIAL_SESSION with authenticated user — skipping, deferring to SIGNED_IN');
       return;
     }
 
