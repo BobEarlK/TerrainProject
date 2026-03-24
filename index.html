@@ -1003,6 +1003,9 @@
     .then(r => r.json())
     .then(data => {
       if (!Array.isArray(data)) return; // guard against error response objects
+      // If auth has already settled (currentUser is set), loadMarkers() has run and owns
+      // the DOM — skip this render to avoid duplicate overlapping cairns.
+      if (currentUser) return;
       data.forEach(marker => {
         addCairnToTerrain(marker.x, marker.y, marker.title, marker.content, false, false);
       });
