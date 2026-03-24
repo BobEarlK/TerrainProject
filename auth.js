@@ -141,6 +141,9 @@ export function initAuth() {
     // For anonymous visitors (null session) it's the only event, so process normally.
     if (event === 'INITIAL_SESSION' && session?.user) return;
 
+    // TOKEN_REFRESHED fires in the background on long sessions — no UI update needed.
+    if (event === 'TOKEN_REFRESHED') return;
+
     // Password was set — USER_UPDATED fires reliably even when the promise hangs.
     if (event === 'USER_UPDATED' && state.passwordWasSet) {
       hideSetPassword();
