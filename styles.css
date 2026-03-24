@@ -118,16 +118,31 @@ body {
   background: rgba(90, 74, 50, 0.15);
 }
 
-#user-status select {
-  background: transparent;
+.seg-control {
+  display: flex;
   border: 1px solid rgba(90, 74, 50, 0.4);
-  color: #5a4a32;
-  padding: 4px 8px;
   border-radius: 999px;
+  overflow: hidden;
+}
+
+.seg-btn {
+  background: transparent;
+  border: none !important;
+  color: #5a4a32;
+  padding: 4px 10px;
   cursor: pointer;
   font-family: Georgia, serif;
   font-size: 0.75rem;
   letter-spacing: 0.05em;
+  transition: background 0.2s;
+}
+
+.seg-btn + .seg-btn {
+  border-left: 1px solid rgba(90, 74, 50, 0.4) !important;
+}
+
+.seg-btn.seg-active {
+  background: rgba(90, 74, 50, 0.2);
 }
 
 /* Overlays — shared base */

@@ -18,21 +18,28 @@ export async function updateUI(user) {
     addBtn.style.display = 'flex';
     userStatus.innerHTML = `
       <span>${state.currentUsername ?? user.email}</span>
-      <label for="show-select" style="font-size:0.75rem;letter-spacing:0.05em;">Show</label>
-      <select id="show-select">
-        <option value="all"  ${state.showOthers ? 'selected' : ''}>All cairns</option>
-        <option value="mine" ${state.showOthers ? '' : 'selected'}>My cairns</option>
-      </select>
+      <div class="seg-control">
+        <button id="filter-all"  class="seg-btn ${state.showOthers ? 'seg-active' : ''}">All cairns</button>
+        <button id="filter-mine" class="seg-btn ${state.showOthers ? '' : 'seg-active'}">My cairns</button>
+      </div>
       <button id="signout-btn">Sign out</button>
     `;
     document.getElementById('signout-btn').addEventListener('click', () => {
-      client.auth.signOut(); // fire and forget — SIGNED_OUT hangs like updateUser did
-      updateUI(null);        // drive UI directly from click, don't wait for the event
+      client.auth.signOut();
+      updateUI(null);
       document.querySelectorAll('.cairn').forEach(el => el.remove());
       loadMarkers();
     });
-    document.getElementById('show-select').addEventListener('change', (e) => {
-      state.showOthers = e.target.value === 'all';
+    document.getElementById('filter-all').addEventListener('click', () => {
+      state.showOthers = true;
+      document.getElementById('filter-all').classList.add('seg-active');
+      document.getElementById('filter-mine').classList.remove('seg-active');
+      applyVisibilityFilter();
+    });
+    document.getElementById('filter-mine').addEventListener('click', () => {
+      state.showOthers = false;
+      document.getElementById('filter-mine').classList.add('seg-active');
+      document.getElementById('filter-all').classList.remove('seg-active');
       applyVisibilityFilter();
     });
 

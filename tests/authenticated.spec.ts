@@ -28,8 +28,8 @@ test.describe('AUTHENTICATED state', () => {
   });
 
   // Behavior 28
-  test('Toggle button is visible in the status capsule', async ({ page }) => {
-    await expect(page.locator('#toggle-others-btn')).toBeVisible();
+  test('Filter control is visible in the status capsule', async ({ page }) => {
+    await expect(page.locator('.seg-control')).toBeVisible();
   });
 
   // Behavior 29
@@ -38,14 +38,14 @@ test.describe('AUTHENTICATED state', () => {
   });
 
   // Behavior 30
-  test('Toggle button reads "All cairns" when other cairns are visible', async ({ page }) => {
-    await expect(page.locator('#toggle-others-btn')).toHaveText('All cairns');
+  test('"All cairns" segment is active by default', async ({ page }) => {
+    await expect(page.locator('#filter-all')).toHaveClass(/seg-active/);
   });
 
   // Behavior 31
-  test('Toggle button reads "My cairns" when other cairns are hidden', async ({ page }) => {
-    await page.locator('#toggle-others-btn').click();
-    await expect(page.locator('#toggle-others-btn')).toHaveText('My cairns');
+  test('Clicking "My cairns" makes it the active segment', async ({ page }) => {
+    await page.locator('#filter-mine').click();
+    await expect(page.locator('#filter-mine')).toHaveClass(/seg-active/);
   });
 
   // Behaviors 32–33: require cairns owned by testUser2 to be present in the DB.

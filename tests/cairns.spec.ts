@@ -63,7 +63,7 @@ test.describe('Cairn visibility — authenticated', () => {
 
   // Behavior 46
   test("Hiding others' cairns does not hide the current user's cairns", async ({ page }) => {
-    await page.locator('#toggle-others-btn').click();
+    await page.locator('#filter-mine').click();
     await expect(page.locator('.cairn-mine').first()).toBeVisible();
     await expect(page.locator('.cairn:not(.cairn-mine)').first()).toBeHidden();
   });
