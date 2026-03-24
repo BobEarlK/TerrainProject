@@ -5,413 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pandemic Erratic</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: #f7f3eb;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      font-family: Georgia, serif;
-    }
-
-    #terrain {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    #topo-bg {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .cairn {
-      position: absolute;
-      width: 48px;
-      height: 64px;
-      cursor: pointer;
-      transform: translate(-50%, -100%);
-      transition: transform 0.2s ease, filter 0.2s ease;
-      filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.25));
-    }
-
-    .cairn:hover {
-      transform: translate(-50%, -100%) scale(1.15);
-      filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.35));
-    }
-
-    .cairn.dragging {
-      opacity: 0.85;
-      cursor: grabbing;
-      transition: none;
-      pointer-events: none;
-      filter: none;
-    }
-
-    /* Your cairns — warmer, amber-tinted */
-    .cairn-mine {
-      filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.25)) sepia(0.5) saturate(2) hue-rotate(-20deg);
-    }
-
-    .cairn-mine:hover {
-      transform: translate(-50%, -100%) scale(1.15);
-      filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.35)) sepia(0.5) saturate(2) hue-rotate(-20deg);
-    }
-
-    /* Add button — hidden until logged in */
-    #add-btn {
-      position: fixed;
-      bottom: 32px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.35);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.55);
-      color: #5a4a32;
-      font-size: 1.6rem;
-      cursor: pointer;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      z-index: 20;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
-    }
-
-    #add-btn:hover { background: rgba(255, 255, 255, 0.55); }
-
-    /* User status area — top right, liquid glass capsule */
-    #user-status {
-      position: fixed;
-      top: 20px;
-      right: 24px;
-      z-index: 20;
-      font-size: 0.8rem;
-      color: #5a4a32;
-      letter-spacing: 0.05em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.35);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.55);
-      border-radius: 999px;
-      padding: 6px 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    }
-
-    #user-status button {
-      background: transparent;
-      border: 1px solid rgba(90, 74, 50, 0.4);
-      color: #5a4a32;
-      padding: 4px 12px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-family: Georgia, serif;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    #user-status button:hover {
-      background: rgba(90, 74, 50, 0.15);
-    }
-
-    /* Cairn dialog */
-    #dialog-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.3);
-      z-index: 30;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #dialog-overlay.visible { display: flex; }
-
-    #dialog {
-      background: #f7f3eb;
-      border: 1px solid #8b7355;
-      border-radius: 6px;
-      padding: 28px 32px;
-      width: 360px;
-      box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
-    }
-
-    #dialog h3, #login-dialog h3 {
-      font-size: 1.1rem;
-      color: #5a4a32;
-      margin-bottom: 18px;
-      letter-spacing: 0.04em;
-    }
-
-    #dialog label, #login-dialog label {
-      display: block;
-      font-size: 0.8rem;
-      color: #8b7355;
-      margin-bottom: 4px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    #dialog input, #dialog textarea, #login-dialog input,
-    #set-password-dialog input, #choose-username-dialog input {
-      width: 100%;
-      background: #eee8d8;
-      border: 1px solid #c4a882;
-      border-radius: 3px;
-      padding: 8px 10px;
-      font-family: Georgia, serif;
-      font-size: 0.9rem;
-      color: #3a3028;
-      margin-bottom: 16px;
-      resize: none;
-    }
-
-    #dialog textarea { height: 90px; }
-
-    .dialog-btns {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    .dialog-btns button {
-      padding: 8px 20px;
-      border-radius: 3px;
-      border: none;
-      cursor: pointer;
-      font-family: Georgia, serif;
-      font-size: 0.9rem;
-    }
-
-    #cancel-btn, #login-cancel-btn {
-      background: transparent;
-      color: #8b7355;
-      border: 1px solid #8b7355;
-    }
-
-    #place-btn, #login-submit-btn, #set-password-submit-btn,
-    #choose-username-submit-btn, #reset-submit-btn {
-      background: #5a4a32;
-      color: #f7f3eb;
-    }
-
-    #place-btn:hover, #login-submit-btn:hover, #set-password-submit-btn:hover,
-    #choose-username-submit-btn:hover, #reset-submit-btn:hover { background: #3a2e1e; }
-
-    /* Login overlay */
-    #login-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.3);
-      z-index: 30;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #login-overlay.visible { display: flex; }
-
-    #login-dialog {
-      background: #f7f3eb;
-      border: 1px solid #8b7355;
-      border-radius: 6px;
-      padding: 28px 32px;
-      width: 320px;
-      box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
-    }
-
-    #login-error, #set-password-error {
-      font-size: 0.8rem;
-      color: #8b3a3a;
-      margin-bottom: 12px;
-      display: none;
-    }
-
-    #login-message, #set-password-message {
-      font-size: 0.8rem;
-      color: #3a6b3a;
-      margin-bottom: 12px;
-      display: none;
-    }
-
-    .forgot-link {
-      display: block;
-      text-align: right;
-      font-size: 0.75rem;
-      color: #8b7355;
-      cursor: pointer;
-      margin-top: -10px;
-      margin-bottom: 16px;
-      text-decoration: underline;
-      letter-spacing: 0.03em;
-    }
-
-    .forgot-link:hover { color: #5a4a32; }
-
-    #reset-view { display: none; }
-
-    /* Set password overlay */
-    #set-password-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.3);
-      z-index: 30;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #set-password-overlay.visible { display: flex; }
-
-    #set-password-dialog {
-      background: #f7f3eb;
-      border: 1px solid #8b7355;
-      border-radius: 6px;
-      padding: 28px 32px;
-      width: 320px;
-      box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
-    }
-
-    /* Choose username overlay */
-    #choose-username-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.3);
-      z-index: 30;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #choose-username-overlay.visible { display: flex; }
-
-    #choose-username-dialog {
-      background: #f7f3eb;
-      border: 1px solid #8b7355;
-      border-radius: 6px;
-      padding: 28px 32px;
-      width: 320px;
-      box-shadow: 4px 8px 24px rgba(0,0,0,0.2);
-    }
-
-    #choose-username-error {
-      font-size: 0.8rem;
-      color: #8b3a3a;
-      margin-bottom: 12px;
-      display: none;
-    }
-
-    #choose-username-hint {
-      font-size: 0.75rem;
-      color: #8b7355;
-      margin-top: 0;
-      margin-bottom: 16px;
-      font-style: italic;
-      display: block;
-    }
-
-    /* Password field with show/hide toggle */
-    .pw-field-wrap {
-      position: relative;
-      margin-bottom: 16px;
-    }
-
-    #set-password-dialog .pw-field-wrap input {
-      margin-bottom: 0;
-      padding-right: 52px;
-    }
-
-    .pw-toggle {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: #8b7355;
-      font-size: 0.75rem;
-      font-family: Georgia, serif;
-      cursor: pointer;
-      padding: 2px 4px;
-      letter-spacing: 0.04em;
-    }
-
-    .pw-toggle:hover { color: #5a4a32; }
-
-    #set-password-hint {
-      font-size: 0.75rem;
-      color: #8b7355;
-      margin-top: -8px;
-      margin-bottom: 14px;
-      font-style: italic;
-    }
-
-    /* Instruction banner */
-    #instruction {
-      display: none;
-      position: fixed;
-      top: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #5a4a32;
-      color: #f7f3eb;
-      padding: 10px 24px;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      letter-spacing: 0.04em;
-      z-index: 20;
-      pointer-events: none;
-    }
-
-    /* Popup */
-    #popup {
-      display: none;
-      position: absolute;
-      background: #f7f3eb;
-      border: 1px solid #8b7355;
-      border-radius: 4px;
-      padding: 20px 24px;
-      max-width: 320px;
-      box-shadow: 4px 6px 20px rgba(0,0,0,0.15);
-      z-index: 10;
-    }
-
-    #popup h3 {
-      font-size: 1rem;
-      color: #5a4a32;
-      margin-bottom: 10px;
-      letter-spacing: 0.04em;
-    }
-
-    #popup p {
-      font-size: 0.9rem;
-      color: #3a3028;
-      line-height: 1.6;
-      font-style: italic;
-    }
-
-    #popup .close {
-      position: absolute;
-      top: 8px; right: 12px;
-      cursor: pointer;
-      font-size: 1rem;
-      color: #8b7355;
-    }
-
-    #popup .close:hover { color: #5a4a32; }
-  </style>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 
@@ -425,23 +19,23 @@
 <div id="user-status"></div>
 
 <!-- Cairn dialog -->
-<div id="dialog-overlay">
-  <div id="dialog">
+<div id="dialog-overlay" class="overlay">
+  <div id="dialog" class="dialog">
     <h3>Leave your mark</h3>
     <label>Title</label>
     <input type="text" id="input-title" placeholder="A name for this place"/>
     <label>What do you want to leave here?</label>
     <textarea id="input-content" placeholder="A poem, a memory, a thought..."></textarea>
     <div class="dialog-btns">
-      <button id="cancel-btn">Cancel</button>
-      <button id="place-btn">Place cairn</button>
+      <button id="cancel-btn" class="btn-cancel">Cancel</button>
+      <button id="place-btn" class="btn-primary">Place cairn</button>
     </div>
   </div>
 </div>
 
 <!-- Login overlay -->
-<div id="login-overlay">
-  <div id="login-dialog">
+<div id="login-overlay" class="overlay">
+  <div id="login-dialog" class="dialog">
 
     <!-- Sign in view -->
     <div id="login-view">
@@ -451,10 +45,10 @@
       <label>Password</label>
       <input type="password" id="login-password" placeholder="••••••••"/>
       <span class="forgot-link" id="forgot-link">Forgot password?</span>
-      <div id="login-error"></div>
+      <div id="login-error" class="dialog-error"></div>
       <div class="dialog-btns">
-        <button id="login-cancel-btn">Cancel</button>
-        <button id="login-submit-btn">Sign in</button>
+        <button id="login-cancel-btn" class="btn-cancel">Cancel</button>
+        <button id="login-submit-btn" class="btn-primary">Sign in</button>
       </div>
     </div>
 
@@ -463,10 +57,10 @@
       <h3>Reset password</h3>
       <label>Email</label>
       <input type="email" id="reset-email" placeholder="your@email.com"/>
-      <div id="login-message"></div>
+      <div id="login-message" class="dialog-message"></div>
       <div class="dialog-btns">
-        <button id="reset-back-btn">Back</button>
-        <button id="reset-submit-btn">Send reset link</button>
+        <button id="reset-back-btn" class="btn-cancel">Back</button>
+        <button id="reset-submit-btn" class="btn-primary">Send reset link</button>
       </div>
     </div>
 
@@ -474,8 +68,8 @@
 </div>
 
 <!-- Set password overlay (invite arrival + password recovery) -->
-<div id="set-password-overlay">
-  <div id="set-password-dialog">
+<div id="set-password-overlay" class="overlay">
+  <div id="set-password-dialog" class="dialog">
     <h3 id="set-password-title">Set your password</h3>
     <label>New password</label>
     <div class="pw-field-wrap">
@@ -487,23 +81,23 @@
       <input type="password" id="confirm-password" placeholder="••••••••"/>
       <button type="button" class="pw-toggle" data-target="confirm-password">Show</button>
     </div>
-    <p id="set-password-hint">At least 6 characters.</p>
-    <div id="set-password-error"></div>
+    <p id="set-password-hint" class="hint">At least 6 characters.</p>
+    <div id="set-password-error" class="dialog-error"></div>
     <div class="dialog-btns">
-      <button id="set-password-submit-btn">Set password</button>
+      <button id="set-password-submit-btn" class="btn-primary">Set password</button>
     </div>
   </div>
 </div>
 
 <!-- Choose username overlay (new users only) -->
-<div id="choose-username-overlay">
-  <div id="choose-username-dialog">
+<div id="choose-username-overlay" class="overlay">
+  <div id="choose-username-dialog" class="dialog">
     <h3>Choose a username</h3>
     <input type="text" id="username-input" placeholder="e.g. wanderer, stonepiler..."/>
-    <p id="choose-username-hint">Letters, numbers, spaces, and underscores only.</p>
-    <div id="choose-username-error"></div>
+    <p id="choose-username-hint" class="hint">Letters, numbers, spaces, and underscores only.</p>
+    <div id="choose-username-error" class="dialog-error"></div>
     <div class="dialog-btns">
-      <button id="choose-username-submit-btn">Save</button>
+      <button id="choose-username-submit-btn" class="btn-primary">Save</button>
     </div>
   </div>
 </div>

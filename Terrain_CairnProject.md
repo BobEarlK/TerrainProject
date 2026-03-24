@@ -1,5 +1,5 @@
 # Terrain / Cairn Project
-*Last updated: 2026-03-22*
+*Last updated: 2026-03-23*
 
 > **Claude:** Read sections 1–7 each session. Section 8 (Archive) only if debugging a recurrence of a previously solved problem.
 
@@ -13,7 +13,7 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 
 ---
 
-## 2. Current State *(as of 2026-03-22)*
+## 2. Current State *(as of 2026-03-23)*
 
 **Live at:** pandemicErratic.com — single `index.html`, all code in one file.
 
@@ -29,18 +29,17 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 
 **Testing status:**
 - Playwright end-to-end test suite set up (TypeScript, 3 browsers)
-- `anonymous.spec.ts` — **33/33 passing** ✓
-- `authenticated.spec.ts` — **45/45 passing** ✓ (all 3 browsers)
-- `dialogs.spec.ts` — **passing** ✓ (all 3 browsers) — behaviors 12–25, 47–55
-- `cairns.spec.ts` — **2/4 failing** — behaviors 45 and 46 fail because testUser1's cairn doesn't get `.cairn-mine` class
+- `anonymous.spec.ts` — **passing** ✓
+- `authenticated.spec.ts` — **passing** ✓
+- `dialogs.spec.ts` — **passing** ✓
+- `cairns.spec.ts` — **passing** ✓ (after Web Locks deadlock fix + testUser1 cairn inserted in Supabase)
+- All tests passing on chromium — full 3-browser run is the next step
 - `BEHAVIORS.md` — 55 numbered behaviors organized by auth state (in `tests/`)
 - `MANUAL_TEST_CHECKLIST.md` — step-by-step scripts for email-dependent flows
-- Tagged `tests-green-pre-refactor` in git (anonymous + authenticated green, before refactor work)
+- Tagged `tests-green-pre-refactor` in git (pre-session baseline)
 
 **Known issues / deferred:**
-- **[BLOCKING — cairns.spec.ts]** Behaviors 45 and 46 failing. Root cause identified: the raw anonymous fetch at the bottom of the script loads all cairns with `isOwner = false`. If this fetch resolves *after* `loadMarkers()` (the auth-aware reload), it overwrites the `.cairn-mine` cairns with un-owned ones. Diagnostic confirmed: `currentUser.id` is correct, user_id in DB matches, but `.cairn-mine` never appears. Fix: the initial raw fetch must not run if auth has already settled, OR `loadMarkers()` must always run last and clear the anonymous load. Do not change code without a clear fix — read the debugging discipline note in PROJECT_HUB.md first.
-- **[DEFERRED]** Login dialog didn't dismiss after sign-in (same Web Locks pattern as updateUser/signOut). Fix deployed: close overlay from SIGNED_IN event if visible. Needs manual verification next session.
-- **[DEFERRED]** Apple Passwords silent failure on set-password dialog. Root cause: Web Locks hang prevents `.then()` from firing. Needs timeout fallback + better error message. Revisit when wife is available to test.
+- **[DEFERRED]** Apple Passwords silent failure on set-password dialog. Root cause: Web Locks hang prevents `.then()` from firing. Now that the deadlock is fixed this may behave differently — revisit when wife is available to test.
 - `console.log` debug lines still in code — strip before public launch
 - No way to change username after initial setup
 - `#forgot-link` has `margin-top: -10px` causing real UX bug (Chromium click-through) — workaround in tests, real fix belongs in CSS
@@ -48,7 +47,7 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 
 **DB tables:** `markers` (id, x, y, title, content, user_id), `profiles` (id, username)
 **Auth:** Supabase email+password; public signups disabled; Bob invites users manually
-**Test users:** Two dedicated Playwright test accounts exist in Supabase (testUser1@mock.com / testUser1, testUser2@mock.com / testUser2). Both should have profile rows with usernames. Credentials stored in local `.env` file (gitignored) — see `.env.example` for structure.
+**Test users:** Two dedicated Playwright test accounts exist in Supabase (testUser1@mock.com / testUser1, testUser2@mock.com / testUser2). Both have profile rows with usernames. testUser1 has a cairn at x:-1, y:-1 (off-screen, inserted directly via Supabase dashboard). Credentials stored in local `.env` file (gitignored) — see `.env.example` for structure.
 
 ---
 
@@ -67,12 +66,9 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 ## 4. Next Up
 
 **Immediate — next session start:**
-1. Sign in to live app as testUser1 and place a real cairn (fixes `.cairn-mine` ownership for cairns.spec.ts)
-2. Verify login dialog now dismisses correctly after sign-in (manual check — fix deployed)
-3. Run `npx playwright test --project=chromium` — expect cairns.spec.ts behaviors 45+46 to pass
-4. Run full suite across all 3 browsers — confirm clean
-5. Update git tag: `tests-green-post-refactor-prep` once all passing
-6. Begin refactor: split `index.html` → `styles.css`, `auth.js`, `cairns.js`, `main.js` — run tests after each split
+1. Run full 3-browser suite: `npx playwright test` — confirm all passing
+2. Tag: `tests-green-post-deadlock-fix` once clean
+3. Begin refactor: split `index.html` → `styles.css`, `auth.js`, `cairns.js`, `main.js` — run tests after each split
 
 **After tests are green / before inviting wife:**
 - [ ] Fix `#forgot-link` negative margin-top CSS bug (real fix in CSS)
