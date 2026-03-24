@@ -14,6 +14,8 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 export default defineConfig({
   testDir: './tests',
   globalSetup: './tests/global-setup.ts',
+  /* Per-test timeout — must exceed the longest beforeEach wait (15s for auth). */
+  timeout: 20000,
   /* Serial execution — tests hit a real DB; parallel runs would step on each other */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -31,6 +33,9 @@ export default defineConfig({
     // its localStorage session under the final origin. Using non-www would save
     // the session under www but load the page under non-www — storageState never applies.
     baseURL: 'https://www.pandemicerratic.com',
+
+    /* Fast failure for individual actions — clicks/fills should be near-instant. */
+    actionTimeout: 3000,
 
     /* Collect trace on failure for debugging. Change to 'on-first-retry' once tests are stable. */
     trace: 'retain-on-failure',

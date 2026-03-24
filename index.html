@@ -860,6 +860,12 @@
     const { data, error } = await client.from('markers').select('*');
     if (error) { console.error('Error loading markers:', error); return; }
     console.log('[load] loadMarkers processing', data.length, 'markers, currentUser:', currentUser?.id ?? null);
+    // Clear here (not just before calling loadMarkers) so concurrent calls don't duplicate.
+    // Both INITIAL_SESSION and SIGNED_IN fire on authenticated page loads, causing two
+    // concurrent fetches. Clearing after the await means whichever completes last wins —
+    // JS single-thread guarantees the clear+forEach runs atomically, so the result is always
+    // one clean set of cairns regardless of call order.
+    document.querySelectorAll('.cairn').forEach(el => el.remove());
     data.forEach(marker => {
       const isOwner = !!(currentUser && marker.user_id === currentUser.id);
       addCairnToTerrain(marker.x, marker.y, marker.title, marker.content, false, isOwner);
