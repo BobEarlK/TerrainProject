@@ -118,6 +118,18 @@ body {
   background: rgba(90, 74, 50, 0.15);
 }
 
+#user-status select {
+  background: transparent;
+  border: 1px solid rgba(90, 74, 50, 0.4);
+  color: #5a4a32;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
 /* Overlays — shared base */
 .overlay {
   display: none;

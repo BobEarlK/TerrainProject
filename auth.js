@@ -18,7 +18,11 @@ export async function updateUI(user) {
     addBtn.style.display = 'flex';
     userStatus.innerHTML = `
       <span>${state.currentUsername ?? user.email}</span>
-      <button id="toggle-others-btn">${state.showOthers ? 'All cairns' : 'My cairns'}</button>
+      <label for="show-select" style="font-size:0.75rem;letter-spacing:0.05em;">Show</label>
+      <select id="show-select">
+        <option value="all"  ${state.showOthers ? 'selected' : ''}>All cairns</option>
+        <option value="mine" ${state.showOthers ? '' : 'selected'}>My cairns</option>
+      </select>
       <button id="signout-btn">Sign out</button>
     `;
     document.getElementById('signout-btn').addEventListener('click', () => {
@@ -27,9 +31,8 @@ export async function updateUI(user) {
       document.querySelectorAll('.cairn').forEach(el => el.remove());
       loadMarkers();
     });
-    document.getElementById('toggle-others-btn').addEventListener('click', () => {
-      state.showOthers = !state.showOthers;
-      document.getElementById('toggle-others-btn').textContent = state.showOthers ? 'All cairns' : 'My cairns';
+    document.getElementById('show-select').addEventListener('change', (e) => {
+      state.showOthers = e.target.value === 'all';
       applyVisibilityFilter();
     });
 

@@ -41,9 +41,9 @@
     <div id="login-view">
       <h3>Sign in</h3>
       <label>Email</label>
-      <input type="email" id="login-email" placeholder="your@email.com"/>
+      <input type="email" id="login-email" placeholder="your@email.com" autocomplete="username"/>
       <label>Password</label>
-      <input type="password" id="login-password" placeholder="••••••••"/>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"/>
       <span class="forgot-link" id="forgot-link">Forgot password?</span>
       <div id="login-error" class="dialog-error"></div>
       <div class="dialog-btns">
@@ -73,12 +73,12 @@
     <h3 id="set-password-title">Set your password</h3>
     <label>New password</label>
     <div class="pw-field-wrap">
-      <input type="password" id="new-password" placeholder="••••••••"/>
+      <input type="password" id="new-password" placeholder="••••••••" autocomplete="new-password"/>
       <button type="button" class="pw-toggle" data-target="new-password">Show</button>
     </div>
     <label>Confirm password</label>
     <div class="pw-field-wrap">
-      <input type="password" id="confirm-password" placeholder="••••••••"/>
+      <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password"/>
       <button type="button" class="pw-toggle" data-target="confirm-password">Show</button>
     </div>
     <p id="set-password-hint" class="hint">At least 6 characters.</p>

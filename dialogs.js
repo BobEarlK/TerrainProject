@@ -67,7 +67,7 @@ document.getElementById('reset-submit-btn').addEventListener('click', async () =
     msgEl.style.display = 'block';
   } else {
     msgEl.style.color   = '#3a6b3a';
-    msgEl.textContent   = 'Check your email for a reset link.';
+    msgEl.textContent   = 'If that email is registered, you\'ll receive a reset link shortly.';
     msgEl.style.display = 'block';
     const btn = document.getElementById('reset-submit-btn');
     btn.textContent = 'Close';

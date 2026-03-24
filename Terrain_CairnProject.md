@@ -13,9 +13,9 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 
 ---
 
-## 2. Current State *(as of 2026-03-23)*
+## 2. Current State *(as of 2026-03-24)*
 
-**Live at:** pandemicErratic.com — single `index.html`, all code in one file.
+**Live at:** pandemicErratic.com — modular: `index.html` (HTML only) + `styles.css` + `main.js` + `auth.js` + `cairns.js` + `dialogs.js` + `state.js` + `supabase-client.js`.
 
 **What works:**
 - Topographic background (Topographapp.jpg screenshot, watermark present — license being purchased)
@@ -39,11 +39,8 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 - Tagged `tests-green-pre-refactor` in git (pre-session baseline)
 
 **Known issues / deferred:**
-- **[DEFERRED]** Apple Passwords silent failure on set-password dialog. Root cause: Web Locks hang prevents `.then()` from firing. Now that the deadlock is fixed this may behave differently — revisit when wife is available to test.
-- `console.log` debug lines still in code — strip before public launch
+- **[DEFERRED]** Apple Passwords silent failure on set-password dialog — revisit when wife is available to test
 - No way to change username after initial setup
-- `#forgot-link` has `margin-top: -10px` causing real UX bug (Chromium click-through) — workaround in tests, real fix belongs in CSS
-- `index.html` is a single large file — split into `styles.css`, `auth.js`, `cairns.js`, `main.js` when ready
 
 **DB tables:** `markers` (id, x, y, title, content, user_id), `profiles` (id, username)
 **Auth:** Supabase email+password; public signups disabled; Bob invites users manually
@@ -66,16 +63,9 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 ## 4. Next Up
 
 **Immediate — next session start:**
-1. Run full 3-browser suite: `npx playwright test` — confirm all passing
-2. Tag: `tests-green-post-deadlock-fix` once clean
-3. Begin refactor: split `index.html` → `styles.css`, `auth.js`, `cairns.js`, `main.js` — run tests after each split
-
-**After tests are green / before inviting wife:**
-- [ ] Fix `#forgot-link` negative margin-top CSS bug (real fix in CSS)
-- [ ] Add timeout fallback to set-password for Apple Passwords silent failure
-- [ ] Strip `console.log` debug lines
-- [ ] Purchase Topograph license → regenerate background without watermark
-- [ ] Invite wife (beta tester)
+1. Purchase Topograph license → regenerate background without watermark
+2. Invite wife (beta tester)
+3. Act on wife's UI/UX feedback
 
 **After beta feedback:**
 - [ ] Act on UI/UX notes from wife
