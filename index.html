@@ -992,25 +992,11 @@
     loginOverlay.classList.add('visible');
   });
 
-  // Load cairns immediately via raw fetch — bypasses the Supabase client's auth lock.
-  // The client queues all DB queries behind token refresh; raw fetch does not.
-  // Ownership tinting is not applied here (isOwner = false for all).
-  // The auth event handler reloads cairns after the session settles, applying tinting.
-  // See AsyncEventMap.md — "initial cairn load has no auth dependency."
-  fetch(`${SUPABASE_URL}/rest/v1/markers?select=*`, {
-    headers: { 'apikey': SUPABASE_ANON_KEY }
-  })
-    .then(r => r.json())
-    .then(data => {
-      if (!Array.isArray(data)) return; // guard against error response objects
-      // If auth has already settled (currentUser is set), loadMarkers() has run and owns
-      // the DOM — skip this render to avoid duplicate overlapping cairns.
-      if (currentUser) return;
-      data.forEach(marker => {
-        addCairnToTerrain(marker.x, marker.y, marker.title, marker.content, false, false);
-      });
-    })
-    .catch(e => console.error('Initial cairn load failed:', e));
+  // Raw fetch removed — it was a workaround for the Supabase Web Locks deadlock that
+  // caused all client DB calls to hang. Now that the deadlock is fixed (auth callbacks
+  // no longer directly await client.from()), loadMarkers() works correctly for both
+  // authenticated and anonymous users. INITIAL_SESSION fires for anonymous visitors
+  // and routes through the same loadMarkers() call, so the raw fetch is obsolete.
 
   // Expose helpers and state for Playwright tests
   window.showSetPassword = showSetPassword;
