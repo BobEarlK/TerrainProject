@@ -1,5 +1,5 @@
 # Terrain / Cairn Project
-*Last updated: 2026-03-23*
+*Last updated: 2026-03-25*
 
 > **Claude:** Read sections 1–7 each session. Section 8 (Archive) only if debugging a recurrence of a previously solved problem.
 
@@ -9,16 +9,20 @@
 
 A shared creative web space at **pandemicErratic.com** where visitors explore an abstract topographic terrain and leave markers ("cairns") at locations that feel meaningful. Each cairn holds a title and a short text (poem, memory, thought). Other visitors can explore and discover what's been left behind — a collective, living landscape.
 
+**Ultimate purpose:** A mechanism for students (initially medical students) to share meaningful experiences and thoughts asynchronously with peers, in a way that is archivable and visually expressive. The cairn metaphor is intentional — something left behind, marking a moment, discovered by those who pass through later.
+
+The project began as a small personal creative tool and is evolving toward a structured educational platform. Bob is the developer; Andrea (wife) is the first beta tester and early design collaborator. The intended user base is medical students organized into colleges and mentor groups.
+
 Web project only (not iOS). The terrain is invented and artistic, not a real map.
 
 ---
 
-## 2. Current State *(as of 2026-03-24)*
+## 2. Current State *(as of 2026-03-25)*
 
 **Live at:** pandemicErratic.com — modular: `index.html` (HTML only) + `styles.css` + `main.js` + `auth.js` + `cairns.js` + `dialogs.js` + `state.js` + `supabase-client.js`.
 
 **What works:**
-- Topographic background (Topographapp.jpg screenshot, watermark present — license being purchased)
+- Topographic background (Topographapp.jpg — Topograph license now purchased; Andrea will regenerate background without watermark using the app)
 - Cairn markers load from Supabase; click to see title + content popup
 - Drag-to-place: fill in title/content → cairn follows mouse until dropped → saves to DB
 - Full auth flow: invite email → set password → choose username → signed in
@@ -27,19 +31,26 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 - Your cairns visually distinct (amber tint); toggle ("All cairns" / "My cairns") to show/hide others' cairns
 - RLS: read = anyone; write = owner only
 
+**Beta status (2026-03-25):**
+- Andrea (wife) has been invited and is actively using the app
+- Andrea is gathering feedback from colleagues
+- May expand to invite colleagues as a second wave of beta testers
+- Pending feedback: style changes are coming — colors for menus, buttons, and dialog boxes; cairn sizing (currently too uniform and likely wrong scale)
+- Andrea will replace the background image herself using Topograph once she has access
+
 **Testing status:**
 - Playwright end-to-end test suite set up (TypeScript, 3 browsers)
 - `anonymous.spec.ts` — **passing** ✓
 - `authenticated.spec.ts` — **passing** ✓
 - `dialogs.spec.ts` — **passing** ✓
 - `cairns.spec.ts` — **passing** ✓ (after Web Locks deadlock fix + testUser1 cairn inserted in Supabase)
-- All tests passing on chromium — full 3-browser run is the next step
+- All tests passing on chromium — full 3-browser run not yet confirmed
 - `BEHAVIORS.md` — 55 numbered behaviors organized by auth state (in `tests/`)
 - `MANUAL_TEST_CHECKLIST.md` — step-by-step scripts for email-dependent flows
 - Tagged `tests-green-pre-refactor` in git (pre-session baseline)
 
 **Known issues / deferred:**
-- **[DEFERRED]** Apple Passwords silent failure on set-password dialog — revisit when wife is available to test
+- **[DEFERRED]** Apple Passwords silent failure on set-password dialog — Andrea testing may surface this
 - No way to change username after initial setup
 
 **DB tables:** `markers` (id, x, y, title, content, user_id), `profiles` (id, username)
@@ -55,23 +66,31 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 - [x] **M3** — Markers loaded from Supabase ✓ 2026-03-13
 - [x] **M4** — Drag-to-place new marker, saves to DB ✓ 2026-03-13
 - [x] **M5** — User auth; markers owned by user; two users see each other's cairns ✓ 2026-03-18
-- [ ] **M6** — Beta polish: UI improvements from wife's feedback + topograph watermark removed
-- [ ] **M7** — Change username; groups + group filtering
+- [x] **M6a** — Topograph license purchased; Andrea invited as beta tester ✓ 2026-03-25
+- [ ] **M6b** — Beta polish: implement style/color/sizing changes from Andrea's feedback; Andrea regenerates background without watermark
+- [ ] **M7** — CairnBuilder: per-user unique cairn shapes (see §5)
+- [ ] **M8** — Group/college filtering: mentor group → college → year → all (see §5)
+- [ ] **M9** — Map zoom/sectors: coordinate space supports zoom; default view is one sector (see §5)
 
 ---
 
 ## 4. Next Up
 
-**Immediate — next session start:**
-1. Purchase Topograph license → regenerate background without watermark
-2. Invite wife (beta tester)
-3. Act on wife's UI/UX feedback
+**Waiting on (no code needed yet):**
+- Andrea's feedback on colors, button/dialog styling, and cairn sizing
+- Andrea's background regeneration via Topograph (she handles this herself)
+- Andrea's colleague input — may result in a second wave of invites
 
-**After beta feedback:**
-- [ ] Act on UI/UX notes from wife
+**When feedback arrives — implement in this order:**
+1. Style pass: update CSS for menu/button/dialog colors per Andrea's notes
+2. Cairn sizing: adjust SVG scale so cairns feel right at typical screen sizes
+3. Any other UX notes from Andrea or colleagues
 
-**After beta feedback:**
-- [ ] Act on UI/UX notes from wife
+**Pre-invite cleanup (do before any new wave of users):**
+- Strip console.logs from production code
+- Fix `#forgot-link` CSS overlap bug (Chromium hit-testing workaround exists in tests — fix the actual CSS)
+- Add `TOKEN_REFRESHED` guard (prevent duplicate handler firing on token refresh)
+- Confirm full 3-browser Playwright run is green after any CSS changes
 
 ---
 
@@ -79,33 +98,61 @@ Web project only (not iOS). The terrain is invented and artistic, not a real map
 
 *Roughly ordered from simpler to more complex. Nothing here is committed.*
 
-**Near-term / moderate effort:**
-- Change username — simple: add a settings link that reopens the choose-username dialog
-- Email notifications when a new cairn is placed near yours
+**Near-term / low effort:**
+- Change username — add a settings link that reopens the choose-username dialog
 - Edit / delete your own cairns
-- Image or video attached to a cairn
 
-**Groups:**
-- Users can join or create named groups
-- Cairns tagged with a group; filter display by group
-- Requires: `groups` table, `user_groups` join table, filter UI
+**Near-term / moderate effort:**
+- Email notifications when a new cairn is placed near yours
+- Media attachments — images and audio attached to a cairn, not just text (storage and UI implications; needs design thought)
 
-**Cairn customization:**
-- Simple cairn builder: pick from ~5 rock shapes, adjust sizes, stack several, save composite as SVG
-- SVG is small (line drawing = a few KB), storable as a string in the DB per user
-- Each user's cairn becomes visually personal and distinctive
-- Scope: moderate UI work; storage cost is minimal if SVG strings
+**CairnBuilder (moderate–hard):**
+- A web-based tool where each user designs their personal cairn: pick from ~5 rock shapes, adjust colors/sizes/shading, stack them
+- Goal: each user's cairn is visually unique and personally meaningful — not a uniform marker
+- SVG is the right format: small, scalable, storable as a string in the DB per user
+- Lives on the same site as a web tool — not a separate iOS app
+- Could be integrated into the initial profile/setup flow, or accessible later via a profile settings link
 
-**Terrain zoom / pan (research needed):**
-- Current approach: static screenshot of topograph.app — no zoom or pan
-- Option A: pre-render multiple zoom levels as static images, implement simple tile switching — moderate work, still static
-- Option B: investigate whether topograph.app exposes any embed or API — likely not, but worth checking after license purchase
-- Option C: a full tile map system (like OpenStreetMap) would be significant engineering — probably out of scope for this project's spirit
-- **Verdict:** Raise with topograph developer when purchasing license. Don't build until we know what's possible.
+**Cairn aging (hard — but high value for the mission):**
+- Cairns visually show their age: a recent cairn looks fresh; an older one looks weathered
+- Eventually: cairns begin to tilt, then crumble into rubble over a long timescale
+- This reinforces the archival nature of the project — the landscape has memory and history built into it
+- Requires: timestamp already in DB (`created_at`); aging logic computes visual state client-side
+- The rubble/topple end-state is complex animation — defer until simpler aging works
+
+**Group management UI (moderate — prerequisite to group filtering):**
+- At scale, Bob needs a way to manage group membership without touching Supabase directly
+- A simple admin page (gated behind an admin flag on profiles) to invite users, assign college/year/mentor_group, and revoke access
+- This is a prerequisite to rolling out to 200 students
+
+**Group/college filtering (hard — data model change needed):**
+- Intended user base: medical students in 5 colleges with ~4 years each; up to ~200 users at a time
+- **Key data model insight:** year and college are orthogonal — a college contains students from all years; a year contains students from all colleges. A student has both a `college` and a `year`, independently. Mentor groups are nested within colleges.
+- **Filter model:** Amazon-style faceted filtering — college and year are independent filter axes, not a nested drill-down. A user can filter by college AND year simultaneously as separate controls.
+- **Role-gated access to filters:** The filter controls are not uniformly visible — each role sees the filters appropriate to their scope. A student might only see "My group"; a mentor sees group + college; a college head sees college + year; Bob (admin) sees everything. This implies a `role` field on `profiles` (student / mentor / college_head / admin).
+- Data model: `profiles` needs `college`, `year`, `mentor_group`, and `role`
+- RLS implications: group-level visibility rules become more complex; role-gated filter logic likely computed in JS client-side rather than expressed entirely in RLS
+
+**Terrain zoom / sectors (hard — research needed):**
+- At ~15 cairns, a single map view gets crowded; at 200 users it becomes unreadable
+- Default view: a sector of the full coordinate space; zoom out to see more
+- Option A: pre-render multiple zoom levels as static images, implement simple tile switching — moderate, still static
+- Option B: investigate whether topograph.app exposes embed or API — worth raising with the developer now that a license is purchased
+- Option C: full tile map system (like OpenStreetMap) — significant engineering, probably out of scope for this project's spirit
+- **Verdict:** Don't build until we know what topograph.app supports. Raise with developer.
+
+**Multiple backgrounds / maps:**
+- Different terrain images, potentially selectable per group or per user
+- Lowest-effort version: pre-exported images with a switcher; no dynamic tile system
+
+**Archivability (open question — no implementation yet):**
+- A snapshot/export of the terrain at a point in time is a goal (e.g., a graduating class's cairns preserved)
+- What "persists" long-term is unsettled: do cairns stay forever? decay into rubble (see aging above)? get archived to a read-only view?
+- This intersects with cairn aging — the visual language of aging could be the archival mechanism itself
+- Don't design this until the aging feature has a clearer direction
 
 **Visual atmosphere (deferred):**
 - More depth and texture in the terrain
-- Cairns crumble or fade with age
 - Seasonal or time-of-day visual changes
 
 ---
